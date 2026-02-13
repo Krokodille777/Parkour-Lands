@@ -27,6 +27,9 @@ class Player (pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.vel = pygame.math.Vector2(0, 0)
         self.on_ground = False
+        self.crouching = False
+        self.full_width = width
+        self.full_height = height
         self.mask = pygame.mask.from_surface(self.image)
         self.type = "player"
 
@@ -44,3 +47,16 @@ class Player (pygame.sprite.Sprite):
         if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and self.on_ground:
             self.vel.y = self.JUMP_VEL
             self.on_ground = False
+
+        # Crouching
+        bottom = self.rect.bottom
+        if keys[K_c]:
+                self.crouching = True
+                self.image = pygame.Surface((self.full_width, self.full_height // 2))
+                self.image.fill((0, 0, 255))
+        elif not self.crouching:
+                self.image = pygame.Surface((self.full_width, self.full_height))
+                self.image.fill((0, 0, 255))
+        self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
+        self.pos.y = float(self.rect.y)
+        self.mask = pygame.mask.from_surface(self.image)

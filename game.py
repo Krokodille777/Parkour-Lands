@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player
-from physics import apply_gravity, move_and_collide
+from physics import apply_gravity, move_and_collide,  crouching_adjustment
 
 pygame.init()
 
@@ -19,16 +19,19 @@ player = Player(45, 625, 50, 50)
 test_block = Ground(300, 650, 60, 50)
 test_block.image.fill((180, 80, 80))   # reddish
 
+test_block2 = Ground(450, 600, 60, 100)
+test_block2.image.fill((180, 80, 80))   # reddish
+
 # Test wall: too tall to jump over (200px tall)
-test_wall = Ground(550, 500, 60, 200)
+test_wall = Ground(550, 475, 60, 200)
 test_wall.image.fill((80, 80, 180))    # bluish
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, test_block, test_wall]
+colliders = [ground, test_block, test_block2, test_wall]
 
 # Create sprite groups
 all_sprites = pygame.sprite.Group()
-all_sprites.add(ground, player, test_block, test_wall)
+all_sprites.add(ground, player, test_block, test_block2, test_wall)
 
 
 running = True
@@ -43,7 +46,7 @@ while running:
     player.handle_input()
     apply_gravity(player, dt)
     move_and_collide(player, colliders, dt)
-
+    crouching_adjustment(player, colliders)
     #Sky color
     screen.fill((119, 164, 237))
     all_sprites.draw(screen)
