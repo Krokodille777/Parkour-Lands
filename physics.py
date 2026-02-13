@@ -46,6 +46,9 @@ def move_and_collide(player, colliders, dt: float):
             player.rect.bottom = c.rect.top
             player.vel.y = 0
             player.on_ground = True
+            if getattr(c, "type", None) == "jumppad":
+                player.vel.y = c.launch_vel
+                player.on_ground = False
         elif player.vel.y < 0:     # Jumping -> hit ceiling
             player.rect.top = c.rect.bottom
             player.vel.y = 0
@@ -77,3 +80,5 @@ def crouching_adjustment(player, colliders):
 
     # No ceiling detected, can stand up
     player.crouching = False
+
+# If player is on a jump pad, jump strength increases to the jump pad's strength

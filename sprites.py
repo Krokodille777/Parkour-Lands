@@ -60,3 +60,15 @@ class Player (pygame.sprite.Sprite):
         self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
         self.pos.y = float(self.rect.y)
         self.mask = pygame.mask.from_surface(self.image)
+
+
+
+class JumpPad (pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, launch_vel):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.type = 'jumppad' # Type identifier for jump pad objects
+        self.launch_vel = launch_vel
+
+    
