@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player, JumpPad
-from physics import apply_gravity, move_and_collide,  crouching_adjustment
+from physics import apply_gravity, move_and_collide,  crouching_adjustment, follow_player
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -11,7 +11,7 @@ pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
 # Create sprite instances
-ground = Ground(20, 700, 960, 100)
+ground = Ground(20, 700, 900, 500)
 player = Player(45, 625, 50, 50)
 
 # Test block: short enough to jump over (50px tall)
@@ -53,10 +53,11 @@ while running:
     apply_gravity(player, dt)
     move_and_collide(player, colliders, dt)
     crouching_adjustment(player, colliders)
-    
+    offset_x, offset_y = follow_player(player, screen.get_width(), 2000, screen.get_height(), 1500)  # Assuming world width is 2000px and height is 1000px
     #Sky color
     screen.fill((119, 164, 237))
-    all_sprites.draw(screen)
+    for sprite in all_sprites:
+        screen.blit(sprite.image, (sprite.rect.x + offset_x, sprite.rect.y + offset_y))
     pygame.display.flip()
 
 pygame.quit()
