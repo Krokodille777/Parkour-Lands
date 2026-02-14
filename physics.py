@@ -49,6 +49,12 @@ def move_and_collide(player, colliders, dt: float):
             if getattr(c, "type", None) == "jumppad":
                 player.vel.y = c.launch_vel
                 player.on_ground = False
+            if getattr(c, "type", None) == "lava":
+                player.pos = pygame.math.Vector2(60, 625)
+                player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+                player.vel = pygame.math.Vector2(0, 0)
+                player.on_ground = False
+                return
         elif player.vel.y < 0:     # Jumping -> hit ceiling
             player.rect.top = c.rect.bottom
             player.vel.y = 0
@@ -92,3 +98,5 @@ def follow_player(player, screen_width, world_width, screen_height, world_height
     offset_y = max(min(offset_y, 0), screen_height - world_height)
     
     return offset_x, offset_y   
+
+
