@@ -39,7 +39,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
     for t in triggers:
         if getattr(t, "type", None) != "spike":
             continue
-        if not player.rect.colliderect(t.rect):
+        if not pygame.sprite.collide_mask(player, t):
             continue
         player.pos = pygame.math.Vector2(60, 625)
         player.rect.topleft = (round(player.pos.x), round(player.pos.y))
@@ -84,7 +84,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
     for t in triggers:
         if getattr(t, "type", None) != "spike":
             continue
-        if not player.rect.colliderect(t.rect):
+        if not pygame.sprite.collide_mask(player, t):
             continue
         player.pos = pygame.math.Vector2(60, 625)
         player.rect.topleft = (round(player.pos.x), round(player.pos.y))
@@ -157,6 +157,17 @@ def buoyant_force(player, water_group):
                 player.vel.y -= Player.SPEED * 0.5  # Allow upward movement in water
             break
     return in_water
+
+
+def apply_speed_zones(player, triggers):
+    for t in triggers:
+        if getattr(t, "type", None) not in ("accelerator", "decelerator"):
+            continue
+        if player.rect.colliderect(t.rect):
+            if t.type == "accelerator":
+                player.vel.x *= 1.8  # Increase speed by 80%
+            elif t.type == "decelerator":
+                player.vel.x *= 0.4  # Decrease speed to 40%
 
 
 
