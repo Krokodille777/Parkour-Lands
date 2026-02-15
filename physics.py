@@ -40,13 +40,15 @@ def move_and_collide(player, colliders, dt: float, triggers):
     for t in triggers:
         if getattr(t, "type", None) != "spike":
             continue
-        if not player.rect.colliderect(t.rect):
-            continue
+        if player.rect.colliderect(t.rect):
+                continue
+        
         player.pos = pygame.math.Vector2(60, 625)
         player.rect.topleft = (round(player.pos.x), round(player.pos.y))
         player.vel = pygame.math.Vector2(0, 0)
         player.on_ground = False
         return
+            
 
     # --- Vertical pass ---
     player.pos.y += player.vel.y * dt
@@ -83,7 +85,6 @@ def move_and_collide(player, colliders, dt: float, triggers):
             else:
                 player.rect.top = c.rect.bottom
         player.pos.y = float(player.rect.y)
-
     for t in triggers:
         if getattr(t, "type", None) != "spike":
             continue

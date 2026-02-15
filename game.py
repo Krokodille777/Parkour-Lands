@@ -2,8 +2,9 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player, JumpPad, Lava, Spike, Bridge, Water, Ladder
-from physics import apply_gravity, move_and_collide,  crouching_adjustment, follow_player, climb_ladder
+from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder
 from physics import jump_from_the_top_of_ladder
+from maincamera import follow_player
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -47,14 +48,23 @@ spike_left2 = Spike(880, 220, 50, 60, 90)
                     
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, test_block, test_block5,  test_wall2,  lava_pool, spike_left, spike_left2, bridge_upon_lava]
-triggers = [ladder]
-obstacles = [lava_pool, spike_left, spike_left2]
+colliders = [ground, test_block, test_block5,  test_wall2,  lava_pool,  bridge_upon_lava]
+triggers = [ladder, spike_left, spike_left2]  # Objects that trigger special interactions (like climbing or damage)
+
 
 
 # Create sprite groups
-all_sprites = pygame.sprite.Group()
-all_sprites.add(ground, player, test_block,  test_block5, bridge_upon_lava, ladder, test_wall2, lava_pool, spike_left, spike_left2)
+all_sprites = pygame.sprite.LayeredUpdates()
+all_sprites.add(ground, layer = 0)
+all_sprites.add(test_block, layer = 0)
+all_sprites.add(test_block5, layer = 0)
+all_sprites.add(test_wall2, layer = 0)
+all_sprites.add(ladder, layer = 1)
+all_sprites.add(bridge_upon_lava, layer = 1)
+all_sprites.add(lava_pool, layer = 1)
+all_sprites.add(spike_left, layer = 1)
+all_sprites.add(spike_left2, layer = 1)
+all_sprites.add(player, layer = 2)
 
 
 running = True
@@ -68,7 +78,7 @@ while running:
     # Player input & physics
     player.handle_input()
     apply_gravity(player, dt)
-    move_and_collide(player, colliders, dt)
+    move_and_collide(player, colliders, dt, triggers)
     crouching_adjustment(player, colliders)
     climb_ladder(player, triggers)
     jump_from_the_top_of_ladder(player, triggers)
