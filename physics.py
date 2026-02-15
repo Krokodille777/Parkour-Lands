@@ -1,7 +1,9 @@
 import pygame
+from pygame.locals import *
+from sprites import Player
 
 
-GRAVITY = 2000
+GRAVITY = 1200
 
 
 def apply_gravity(player, dt: float):
@@ -105,4 +107,28 @@ def follow_player(player, screen_width, world_width, screen_height, world_height
     
     return offset_x, offset_y   
 
+#Gravity should affect only if you fall off the ladder, not while climbing. So we apply gravity in the main loop as usual, but if the player is on a ladder and pressing up/down, we override the vertical velocity and skip gravity for that frame.
+def climb_ladder(player, ladder_group):
+    on_ladder = False
+    for ladder in ladder_group:
+        if player.rect.colliderect(ladder.rect):
+            on_ladder = True
+            keys = pygame.key.get_pressed()
+            if keys[K_UP] or keys[K_w]:
+                player.vel.y = -Player.SPEED
+            elif keys[K_DOWN] or keys[K_s]:
+                player.vel.y = Player.SPEED
+            else:
+                player.vel.y = 0  # Stay still on the ladder if no vertical input
+            break
+    # If not on a ladder or no vertical input, apply gravity as usual
+    if not on_ladder:
+        apply_gravity(player, 1/60)  # Assuming 60 FPS for consistent gravity application
 
+def jump_from_the_top_of_ladder(player, ladder_group):
+    for ladder in ladder_group:
+        if player.rect.colliderect(ladder.rect):
+            keys = pygame.key.get_pressed()
+            if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and player.on_ground:
+                player.vel.y = Player.JUMP_VEL
+                player.on_ground = False

@@ -102,3 +102,23 @@ class Spike(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'spike' # Type identifier for spike object
+
+#Bridge class is similar to ground, but with different color and type identifier, so we can add different physics if needed in the future
+class Bridge (pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((139, 69, 19))  # Brown color for bridge
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'bridge' # Type identifier for bridge objects
+
+#Ladder is completely different from other objects as it is not a collider, but a trigger for different physics (climbing), so it has its own class and type identifier. It's semi-transparent to indicate that it's not a solid object.
+class Ladder (pygame.sprite.Sprite): 
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((160, 82, 45))  # Sienna color for ladder
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'ladder' # Type identifier for ladder objects
