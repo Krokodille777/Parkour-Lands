@@ -24,10 +24,8 @@ def move_and_collide(player, colliders, dt: float, triggers):
             continue
         if player.vel.x > 0:       # Moving right -> hit wall on the right
             player.rect.right = c.rect.left
-            
         elif player.vel.x < 0:     # Moving left -> hit wall on the left
             player.rect.left = c.rect.right
-            
         else:                       # Not moving horizontally but overlapping (e.g. resize)
             push_right = c.rect.right - player.rect.left
             push_left  = player.rect.right - c.rect.left
@@ -37,18 +35,17 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.rect.right = c.rect.left
         player.pos.x = float(player.rect.x)
 
+    # Check spike triggers after horizontal movement
     for t in triggers:
         if getattr(t, "type", None) != "spike":
             continue
-        if player.rect.colliderect(t.rect):
-                continue
-        
+        if not player.rect.colliderect(t.rect):
+            continue
         player.pos = pygame.math.Vector2(60, 625)
         player.rect.topleft = (round(player.pos.x), round(player.pos.y))
         player.vel = pygame.math.Vector2(0, 0)
         player.on_ground = False
         return
-            
 
     # --- Vertical pass ---
     player.pos.y += player.vel.y * dt
@@ -72,7 +69,6 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.vel = pygame.math.Vector2(0, 0)
                 player.on_ground = False
                 return
-            
         elif player.vel.y < 0:     # Jumping -> hit ceiling
             player.rect.top = c.rect.bottom
             player.vel.y = 0
@@ -143,3 +139,25 @@ def jump_from_the_top_of_ladder(player, ladder_group):
             if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and player.on_ground:
                 player.vel.y = Player.JUMP_VEL
                 player.on_ground = False
+
+
+
+
+def buoyant_force(player, water_group):
+    in_water = False
+    for water in water_group:
+        if player.rect.colliderect(water.rect):
+            in_water = True
+            # Simple buoyancy: if player is in water, reduce gravity effect and allow upward movement
+            apply_gravity(player, 1/60)  # Apply gravity as usual
+            player.vel.y *= 0.5  # Reduce downward velocity to simulate buoyancy
+            player.vel.x *= 0.8  # Optional: reduce horizontal speed in water for more resistance
+            keys = pygame.key.get_pressed()
+            if keys[K_UP] or keys[K_w]:
+                player.vel.y -= Player.SPEED * 0.5  # Allow upward movement in water
+            break
+    return in_water
+
+
+
+

@@ -3,7 +3,7 @@ from pygame.locals import *
 
 from sprites import Ground, Player, JumpPad, Lava, Spike, Bridge, Water, Ladder
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder
-from physics import jump_from_the_top_of_ladder
+from physics import jump_from_the_top_of_ladder, buoyant_force
 from maincamera import follow_player
 pygame.init()
 
@@ -23,7 +23,7 @@ test_block.image.fill((180, 80, 80))   # reddish
 
 
 
-ladder = Ladder(720, 315, 50, 200)
+ladder = Ladder(720, 315, 25, 200)
 
 
 test_block5 = Ground(780, 310, 180, 80)
@@ -36,10 +36,10 @@ test_wall2.image.fill((80, 80, 180))    # bluish
 
 
 
-bridge_upon_lava = Bridge(912, 700, 150, 20)
+bridge_upon_lava = Bridge(912, 730, 100, 20)
 
-lava_pool = Lava(912, 750, 200, 50)
-lava_pool.image.fill((255, 69, 0))   # orange-red
+water_pool = Water(912, 750, 400, 500)
+water_pool.image.fill((0, 101, 255))    # Blue color for water
 
 
 spike_left = Spike(880, 260, 50, 60, 90)
@@ -48,9 +48,10 @@ spike_left2 = Spike(880, 220, 50, 60, 90)
                     
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, test_block, test_block5,  test_wall2,  lava_pool,  bridge_upon_lava]
-triggers = [ladder, spike_left, spike_left2]  # Objects that trigger special interactions (like climbing or damage)
-
+colliders = [ground, test_block, test_block5,  test_wall2,    bridge_upon_lava]
+triggers = [ladder, spike_left, spike_left2, water_pool]  # Objects that trigger special interactions (like climbing or damage)
+water_group = pygame.sprite.LayeredUpdates()
+water_group.add(water_pool, layer = 0)
 
 
 # Create sprite groups
@@ -61,7 +62,7 @@ all_sprites.add(test_block5, layer = 0)
 all_sprites.add(test_wall2, layer = 0)
 all_sprites.add(ladder, layer = 1)
 all_sprites.add(bridge_upon_lava, layer = 1)
-all_sprites.add(lava_pool, layer = 1)
+all_sprites.add(water_pool, layer = 1)
 all_sprites.add(spike_left, layer = 1)
 all_sprites.add(spike_left2, layer = 1)
 all_sprites.add(player, layer = 2)
@@ -81,8 +82,8 @@ while running:
     move_and_collide(player, colliders, dt, triggers)
     crouching_adjustment(player, colliders)
     climb_ladder(player, triggers)
-    jump_from_the_top_of_ladder(player, triggers)
-
+    jump_from_the_top_of_ladder(player, water_group)
+    buoyant_force(player, triggers) 
     offset_x, offset_y = follow_player(player, screen.get_width(), 2000, screen.get_height(), 1500)  # Assuming world width is 2000px and height is 1000px
     #Sky color
     screen.fill((119, 164, 237))
