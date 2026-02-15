@@ -10,7 +10,7 @@ def apply_gravity(player, dt: float):
     player.vel.y += GRAVITY * dt
 
 
-def move_and_collide(player, colliders, dt: float):
+def move_and_collide(player, colliders, dt: float, triggers):
     player.on_ground = False
 
     # --- Horizontal pass ---
@@ -24,8 +24,10 @@ def move_and_collide(player, colliders, dt: float):
             continue
         if player.vel.x > 0:       # Moving right -> hit wall on the right
             player.rect.right = c.rect.left
+            
         elif player.vel.x < 0:     # Moving left -> hit wall on the left
             player.rect.left = c.rect.right
+            
         else:                       # Not moving horizontally but overlapping (e.g. resize)
             push_right = c.rect.right - player.rect.left
             push_left  = player.rect.right - c.rect.left
@@ -34,6 +36,17 @@ def move_and_collide(player, colliders, dt: float):
             else:
                 player.rect.right = c.rect.left
         player.pos.x = float(player.rect.x)
+
+    for t in triggers:
+        if getattr(t, "type", None) != "spike":
+            continue
+        if not player.rect.colliderect(t.rect):
+            continue
+        player.pos = pygame.math.Vector2(60, 625)
+        player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+        player.vel = pygame.math.Vector2(0, 0)
+        player.on_ground = False
+        return
 
     # --- Vertical pass ---
     player.pos.y += player.vel.y * dt
@@ -57,12 +70,7 @@ def move_and_collide(player, colliders, dt: float):
                 player.vel = pygame.math.Vector2(0, 0)
                 player.on_ground = False
                 return
-            if getattr(c, "type", None) == "spike":
-                player.pos = pygame.math.Vector2(60, 625)
-                player.rect.topleft = (round(player.pos.x), round(player.pos.y))
-                player.vel = pygame.math.Vector2(0, 0)
-                player.on_ground = False
-                return
+            
         elif player.vel.y < 0:     # Jumping -> hit ceiling
             player.rect.top = c.rect.bottom
             player.vel.y = 0
@@ -75,6 +83,17 @@ def move_and_collide(player, colliders, dt: float):
             else:
                 player.rect.top = c.rect.bottom
         player.pos.y = float(player.rect.y)
+
+    for t in triggers:
+        if getattr(t, "type", None) != "spike":
+            continue
+        if not player.rect.colliderect(t.rect):
+            continue
+        player.pos = pygame.math.Vector2(60, 625)
+        player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+        player.vel = pygame.math.Vector2(0, 0)
+        player.on_ground = False
+        return
 
     # Crouching adjustment: if player is crouching and there's a ceiling right above, keep them crouched
 def crouching_adjustment(player, colliders):
@@ -96,16 +115,7 @@ def crouching_adjustment(player, colliders):
     player.crouching = False
 
 
-def follow_player(player, screen_width, world_width, screen_height, world_height):
-    # Center the player on the screen, but clamp to world bounds
-    offset_x = screen_width // 2 - round(player.pos.x) - player.rect.width // 2
-    offset_x = max(min(offset_x, 0), screen_width - world_width)
-    offset_x = int(offset_x)  # Ensure it's an integer for blitting
 
-    offset_y = screen_height // 2 - round(player.pos.y) - player.rect.height // 2
-    offset_y = max(min(offset_y, 0), screen_height - world_height)
-    
-    return offset_x, offset_y   
 
 #Gravity should affect only if you fall off the ladder, not while climbing. So we apply gravity in the main loop as usual, but if the player is on a ladder and pressing up/down, we override the vertical velocity and skip gravity for that frame.
 def climb_ladder(player, ladder_group):
