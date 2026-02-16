@@ -97,8 +97,8 @@ while running:
             running = False
 
     # Player input & physics
-    apply_speed_zones(player, speed_zones)
     player.handle_input()
+    apply_speed_zones(player, speed_zones)
     apply_gravity(player, dt)
     move_and_collide(player, colliders, dt, triggers)
     crouching_adjustment(player, colliders)

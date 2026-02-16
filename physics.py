@@ -165,9 +165,9 @@ def apply_speed_zones(player, triggers):
             continue
         if player.rect.colliderect(t.rect):
             if t.type == "accelerator":
-                player.vel.x *= 1.8  # Increase speed by 80%
+                player.vel.x *= 1.8
             elif t.type == "decelerator":
-                player.vel.x *= 0.4  # Decrease speed to 40%
+                player.vel.x *= 0.4
 
 
 
