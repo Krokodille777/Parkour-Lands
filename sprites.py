@@ -27,6 +27,7 @@ class Player (pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.vel = pygame.math.Vector2(0, 0)
         self.on_ground = False
+        self.spawn_point = pygame.math.Vector2(x, y)
         self.crouching = False
         self.full_width = width
         self.full_height = height
@@ -141,3 +142,12 @@ class Decelerator(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'decelerator'
+
+class Checkpoint(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((221, 2, 224))  # Magenta color for checkpoint
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'checkpoint'

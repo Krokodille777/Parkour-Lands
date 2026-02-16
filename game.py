@@ -1,10 +1,11 @@
 import pygame
 from pygame.locals import *
 
-from sprites import Ground, Player, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator
+from sprites import Ground, Player, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
 from maincamera import follow_player
+from checkpoint import checkpoint_activation
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -48,7 +49,7 @@ test_wall2.image.fill((80, 80, 180))    # bluish
 
 
 bridge_upon_lava = Bridge(912, 730, 100, 20)
-
+checkpoint1 = Checkpoint(915, 650, 50, 50)
 water_pool = Water(912, 750, 400, 500)
 water_pool.image.fill((0, 101, 255))    # Blue color for water
 
@@ -64,6 +65,9 @@ triggers = [ladder, spike_left, spike_left2, water_pool, spike_down, spike_down2
 water_group = pygame.sprite.LayeredUpdates()
 water_group.add(water_pool, layer = 0)
 speed_zones = [accelerator_block, decelerator_block]
+checkpoint_group = pygame.sprite.LayeredUpdates()
+
+checkpoint_group.add(checkpoint1, layer = 0)
 
 # Create sprite groups
 all_sprites = pygame.sprite.LayeredUpdates()
@@ -85,6 +89,7 @@ all_sprites.add(spike_down3, layer = 0)
 all_sprites.add(jump_Pad, layer = 1)
 all_sprites.add(accelerator_block, layer = 0)
 all_sprites.add(decelerator_block, layer = 0)
+all_sprites.add(checkpoint1, layer = 0)
 all_sprites.add(player, layer = 2)
 
 
@@ -105,6 +110,9 @@ while running:
     climb_ladder(player, triggers)
     jump_from_the_top_of_ladder(player, water_group)
     buoyant_force(player, triggers) 
+    checkpoint_activation(player, checkpoint_group)
+
+
     offset_x, offset_y = follow_player(player, screen.get_width(), 2000, screen.get_height(), 1500)  # Assuming world width is 2000px and height is 1000px
     #Sky color
     screen.fill((119, 164, 237))

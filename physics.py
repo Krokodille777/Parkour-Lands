@@ -41,7 +41,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
-        player.pos = pygame.math.Vector2(60, 625)
+        player.pos = pygame.math.Vector2(player.spawn_point)
         player.rect.topleft = (round(player.pos.x), round(player.pos.y))
         player.vel = pygame.math.Vector2(0, 0)
         player.on_ground = False
@@ -64,7 +64,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.vel.y = c.launch_vel
                 player.on_ground = False
             if getattr(c, "type", None) == "lava":
-                player.pos = pygame.math.Vector2(60, 625)
+                player.pos = pygame.math.Vector2(player.spawn_point)
                 player.rect.topleft = (round(player.pos.x), round(player.pos.y))
                 player.vel = pygame.math.Vector2(0, 0)
                 player.on_ground = False
@@ -86,7 +86,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
-        player.pos = pygame.math.Vector2(60, 625)
+        player.pos = pygame.math.Vector2(player.spawn_point)
         player.rect.topleft = (round(player.pos.x), round(player.pos.y))
         player.vel = pygame.math.Vector2(0, 0)
         player.on_ground = False
