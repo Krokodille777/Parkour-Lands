@@ -83,8 +83,8 @@ all_sprites.add(spike_down, layer = 0)
 all_sprites.add(spike_down2, layer = 0)
 all_sprites.add(spike_down3, layer = 0)
 all_sprites.add(jump_Pad, layer = 1)
-all_sprites.add(accelerator_block, layer = 1)
-all_sprites.add(decelerator_block, layer = 1)
+all_sprites.add(accelerator_block, layer = 0)
+all_sprites.add(decelerator_block, layer = 0)
 all_sprites.add(player, layer = 2)
 
 
