@@ -12,6 +12,7 @@ def apply_gravity(player, dt: float):
 
 def move_and_collide(player, colliders, dt: float, triggers):
     player.on_ground = False
+    player.ground = None
 
     # --- Horizontal pass ---
     player.pos.x += player.vel.x * dt
@@ -23,12 +24,28 @@ def move_and_collide(player, colliders, dt: float, triggers):
         if not player.rect.colliderect(c.rect):
             continue
         if player.vel.x > 0:       # Moving right -> hit wall on the right
+            push_right = c.rect.right - player.rect.left
+            push_left = player.rect.right - c.rect.left
+            push_down = c.rect.bottom - player.rect.top
+            push_up = player.rect.bottom - c.rect.top
+            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and push_down <= push_up and push_down <= min(push_left, push_right):
+                continue
             player.rect.right = c.rect.left
         elif player.vel.x < 0:     # Moving left -> hit wall on the left
+            push_right = c.rect.right - player.rect.left
+            push_left = player.rect.right - c.rect.left
+            push_down = c.rect.bottom - player.rect.top
+            push_up = player.rect.bottom - c.rect.top
+            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and push_down <= push_up and push_down <= min(push_left, push_right):
+                continue
             player.rect.left = c.rect.right
         else:                       # Not moving horizontally but overlapping (e.g. resize)
             push_right = c.rect.right - player.rect.left
-            push_left  = player.rect.right - c.rect.left
+            push_left = player.rect.right - c.rect.left
+            push_down = c.rect.bottom - player.rect.top
+            push_up = player.rect.bottom - c.rect.top
+            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and min(push_up, push_down) < min(push_left, push_right):
+                continue
             if push_right < push_left:
                 player.rect.left = c.rect.right
             else:
@@ -51,6 +68,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
 
 
     # --- Vertical pass ---
+    prev_rect_y = player.rect.copy()
     player.pos.y += player.vel.y * dt
     player.rect.y = round(player.pos.y)
 
@@ -59,30 +77,36 @@ def move_and_collide(player, colliders, dt: float, triggers):
             continue
         if not player.rect.colliderect(c.rect):
             continue
-        if player.vel.y > 0:       # Falling -> land on top
+        if prev_rect_y.bottom <= c.rect.top:       # Moving down -> land on top
             player.rect.bottom = c.rect.top
             player.vel.y = 0
             player.on_ground = True
+            player.ground = c
             if getattr(c, "type", None) == "jumppad":
                 player.vel.y = c.launch_vel
                 player.on_ground = False
+                player.ground = None
             if getattr(c, "type", None) == "lava":
                 player.pos = pygame.math.Vector2(player.spawn_point)
                 player.rect.topleft = (round(player.pos.x), round(player.pos.y))
                 player.vel = pygame.math.Vector2(0, 0)
                 player.on_ground = False
+                player.ground = None
                 return
-        elif player.vel.y < 0:     # Jumping -> hit ceiling
+        elif prev_rect_y.top >= c.rect.bottom:     # Moving up -> hit ceiling
             player.rect.top = c.rect.bottom
-            player.vel.y = 0
+            player.vel.y = max(player.vel.y, 0)
         else:                       # Not moving vertically but overlapping (e.g. resize)
             push_down = c.rect.bottom - player.rect.top
             push_up   = player.rect.bottom - c.rect.top
             if push_up <= push_down:
                 player.rect.bottom = c.rect.top
+                player.vel.y = 0
                 player.on_ground = True
+                player.ground = c
             else:
                 player.rect.top = c.rect.bottom
+                player.vel.y = max(player.vel.y, 0)
         player.pos.y = float(player.rect.y)
     for t in triggers:
         if getattr(t, "type", None) != "spike":

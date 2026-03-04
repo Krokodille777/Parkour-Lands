@@ -39,6 +39,7 @@ class Player (pygame.sprite.Sprite):
         self.type = "player"
         self.on_updown_elevator = False
         self.on_leftright_elevator = False
+        self.ground = None
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -184,6 +185,8 @@ class ElevatorUpDown(pygame.sprite.Sprite):
         self.range = range
         self.direction = 1
         self.start_y = y
+        self.delta_x = 0
+        self.delta_y = 0
 
 class ElevatorLeftRight(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, range):
@@ -196,3 +199,5 @@ class ElevatorLeftRight(pygame.sprite.Sprite):
         self.range = range
         self.direction = 1
         self.start_x = x
+        self.delta_x = 0
+        self.delta_y = 0
