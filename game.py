@@ -102,6 +102,23 @@ while running:
         if event.type == QUIT:
             running = False
 
+    # Move elevators before resolving player collisions so the player can ride them naturally
+    for elevator in dynamic_colliders:
+        prev_x, prev_y = elevator.rect.x, elevator.rect.y
+        if isinstance(elevator, ElevatorUpDown):
+            updown_elevator_movement(elevator, elevator.range, dt)
+        elif isinstance(elevator, ElevatorLeftRight):
+            leftright_elevator_movement(elevator, elevator.range, dt)
+        elevator.delta_x = elevator.rect.x - prev_x
+        elevator.delta_y = elevator.rect.y - prev_y
+
+    # If the player was standing on a moving elevator last frame, carry them along with it
+    if player.on_ground and player.ground in dynamic_colliders:
+        player.pos.x += player.ground.delta_x
+        player.pos.y += player.ground.delta_y
+        player.rect.x = round(player.pos.x)
+        player.rect.y = round(player.pos.y)
+
     # Player input & physics
     player.handle_input()
     # apply_speed_zones(player, speed_zones)
@@ -114,11 +131,6 @@ while running:
     checkpoint_activation(player, checkpoint_group)
     fragile_ground_check(player, fragile_grounds, colliders, dt)
     respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)
-    for elevator in dynamic_colliders:
-        if isinstance(elevator, ElevatorUpDown):
-            updown_elevator_movement(elevator, elevator.range, dt)
-        elif isinstance(elevator, ElevatorLeftRight):
-            leftright_elevator_movement(elevator, elevator.range, dt)
 
 
 
