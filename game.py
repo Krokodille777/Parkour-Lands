@@ -1,11 +1,12 @@
 import pygame
 from pygame.locals import *
 
-from sprites import Ground, Player, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint
+from sprites import Ground, Player, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint, FragileGround
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
 from maincamera import follow_player
 from checkpoint import checkpoint_activation
+from fragile_ground import fragile_ground_check, respawn_fragile_ground
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -14,57 +15,53 @@ pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
 # Create sprite instances
-ground = Ground(0, 700, 900, 500)
+ground = Ground(0, 700, 912, 500)
 player = Player(45, 625, 50, 50)
 
 
-jump_Pad = JumpPad(300, 680, 60, 20, launch_vel = -1200)
+jump_Pad = JumpPad(300, 680, 60, 20, launch_vel = -1500)
 jump_Pad.image.fill((255, 255, 0))   # Yellowish
 
 # Test block: short enough to jump over (50px tall)
-test_block = Ground(720, 650, 60, 50)
-test_block.image.fill((180, 80, 80))   # reddish
+
+fragilePlatform = FragileGround(1112, 400, 100, 20)
+
+test_block = Ground(1312, 400, 150, 50)
+spike_left = Spike(1350, 370, 40, 50, 90)
+spike_left2 = Spike(1350, 340, 40, 50, 90)
+test_wall2 = Ground(1400, 300, 50, 150)
+
+test_block3 = Ground(230, 230, 180, 80)
+spike_up = Spike(335, 310, 50, 40, 180)
+spike_up2 = Spike(295, 310, 50, 40, 180)
+spike_up3 = Spike(255, 310, 50, 40, 180)
 
 
 
 
-ladder = Ladder(720, 315, 25, 200)
+ladder1 = Ladder(850, 410, 20, 290)
+bridge_upon_lava = Bridge(725, 400, 100, 20)
+checkpoint1 = Checkpoint(728, 350, 50, 50)
+# water_pool = Water(912, 750, 400, 500)
+# water_pool.image.fill((0, 101, 255))    # Blue color for water
 
-test_block2 = Ground(480, 310, 180, 80)
-accelerator_block = Accelerator(400, 310, 130, 80)
-test_block3 = Ground(240, 310, 180, 80)
-spike_down = Spike(335, 270, 50, 40, 0)
-spike_down2 = Spike(295, 270, 50, 40, 0)
-spike_down3 = Spike(255, 270, 50, 40, 0)
-decelerator_block = Decelerator(120, 310, 120, 80)
-test_block4 = Ground(50, 310, 180, 80)
-test_block5 = Ground(780, 310, 180, 80)
+test_wall = Ground(890, 400, 50, 300)
+test_wall.image.fill((128, 128, 128))  # Gray color for test wall
 
-
-# Test wall: too tall to jump over (200px tall)
-
-test_wall2 = Ground(925, 150, 60, 185)
-test_wall2.image.fill((80, 80, 180))    # bluish
+lava_pool = Lava(912, 750, 400, 500)
+lava_pool.image.fill((250, 112, 47))    # Orange color for lava
 
 
-
-bridge_upon_lava = Bridge(912, 730, 100, 20)
-checkpoint1 = Checkpoint(915, 650, 50, 50)
-water_pool = Water(912, 750, 400, 500)
-water_pool.image.fill((0, 101, 255))    # Blue color for water
-
-
-spike_left = Spike(880, 260, 50, 60, 90)
-spike_left2 = Spike(880, 220, 50, 60, 90)
-
-                    
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, test_block, test_block2, test_block3, test_block4, test_block5,  test_wall2, accelerator_block, decelerator_block, bridge_upon_lava, jump_Pad]
-triggers = [ladder, spike_left, spike_left2, water_pool, spike_down, spike_down2, spike_down3, accelerator_block, decelerator_block]  # Objects that trigger special interactions (like climbing or damage)
+colliders = [ground, test_block3, jump_Pad, lava_pool, test_wall, bridge_upon_lava, test_block, test_wall2, fragilePlatform]
+triggers = [ladder1, spike_up, spike_up2, spike_up3, spike_left, spike_left2, ]  # Objects that trigger special interactions (like climbing or damage)
+dynamic_colliders = [fragilePlatform]  # Colliders that can change state (like breaking)
+
 water_group = pygame.sprite.LayeredUpdates()
-water_group.add(water_pool, layer = 0)
-speed_zones = [accelerator_block, decelerator_block]
+fragile_grounds = [fragilePlatform]
+water_group.add(lava_pool, layer = 0)
+# speed_zones = [accelerator_block, decelerator_block]
 checkpoint_group = pygame.sprite.LayeredUpdates()
 
 checkpoint_group.add(checkpoint1, layer = 0)
@@ -73,24 +70,24 @@ checkpoint_group.add(checkpoint1, layer = 0)
 all_sprites = pygame.sprite.LayeredUpdates()
 all_sprites.add(ground, layer = 0)
 all_sprites.add(test_block, layer = 0)
-all_sprites.add(test_block2, layer = 0)
+all_sprites.add(test_wall, layer = 0)
 all_sprites.add(test_block3, layer = 0)
-all_sprites.add(test_block4, layer = 0)
-all_sprites.add(test_block5, layer = 0)
-all_sprites.add(test_wall2, layer = 0)
-all_sprites.add(ladder, layer = 1)
+all_sprites.add(fragilePlatform, layer = 0)
+all_sprites.add(ladder1, layer = 1)
 all_sprites.add(bridge_upon_lava, layer = 1)
-all_sprites.add(water_pool, layer = 1)
 all_sprites.add(spike_left, layer = 0)
 all_sprites.add(spike_left2, layer = 0)
-all_sprites.add(spike_down, layer = 0)
-all_sprites.add(spike_down2, layer = 0)
-all_sprites.add(spike_down3, layer = 0)
+# all_sprites.add(water_pool, layer = 1)
+all_sprites.add(lava_pool, layer = 1)
+all_sprites.add(spike_up, layer = 0)
+all_sprites.add(spike_up2, layer = 0)
+all_sprites.add(spike_up3, layer = 0)
 all_sprites.add(jump_Pad, layer = 1)
-all_sprites.add(accelerator_block, layer = 0)
-all_sprites.add(decelerator_block, layer = 0)
+# all_sprites.add(accelerator_block, layer = 0)
+# all_sprites.add(decelerator_block, layer = 0)
 all_sprites.add(checkpoint1, layer = 0)
 all_sprites.add(player, layer = 2)
+all_sprites.add(test_wall2, layer = 0)
 
 
 running = True
@@ -103,14 +100,17 @@ while running:
 
     # Player input & physics
     player.handle_input()
-    apply_speed_zones(player, speed_zones)
+    # apply_speed_zones(player, speed_zones)
     apply_gravity(player, dt)
     move_and_collide(player, colliders, dt, triggers)
     crouching_adjustment(player, colliders)
     climb_ladder(player, triggers)
-    jump_from_the_top_of_ladder(player, water_group)
+    jump_from_the_top_of_ladder(player, triggers)
     buoyant_force(player, triggers) 
     checkpoint_activation(player, checkpoint_group)
+    fragile_ground_check(player, fragile_grounds, colliders, dt)
+    respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)
+
 
 
     offset_x, offset_y = follow_player(player, screen.get_width(), 2000, screen.get_height(), 1500)  # Assuming world width is 2000px and height is 1000px
@@ -118,6 +118,8 @@ while running:
     screen.fill((119, 164, 237))
     for sprite in all_sprites:
         screen.blit(sprite.image, (sprite.rect.x + offset_x, sprite.rect.y + offset_y))
+
+            
     pygame.display.flip()
 
 pygame.quit()

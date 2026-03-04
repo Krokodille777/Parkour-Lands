@@ -3,7 +3,7 @@ from pygame.locals import *
 from sprites import Player
 
 
-GRAVITY = 1200
+GRAVITY = 1500
 
 
 def apply_gravity(player, dt: float):
@@ -46,6 +46,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
         player.vel = pygame.math.Vector2(0, 0)
         player.on_ground = False
         return
+
 
     # --- Vertical pass ---
     player.pos.y += player.vel.y * dt
@@ -91,6 +92,8 @@ def move_and_collide(player, colliders, dt: float, triggers):
         player.vel = pygame.math.Vector2(0, 0)
         player.on_ground = False
         return
+    
+
 
     # Crouching adjustment: if player is crouching and there's a ceiling right above, keep them crouched
 def crouching_adjustment(player, colliders):

@@ -2,6 +2,10 @@ import pygame
 
 from pygame.locals import *
 
+
+#Static sprites classes + Player class
+
+
 #Class for ground and platforms
 
 class Ground (pygame.sprite.Sprite):
@@ -151,3 +155,17 @@ class Checkpoint(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'checkpoint'
+
+
+#Dynamic sprites classes
+
+
+#Fragile ground is a type of ground that breaks when the player steps on.
+class FragileGround(Ground):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((169, 169, 169))  # Dark gray color for fragile ground
+        self.break_timer = 0  
+        self.respawn_timer = 0
+        self.broken = False  
+        self.type = 'fragile_ground' # Type identifier for fragile ground objects
