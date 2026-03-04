@@ -37,6 +37,8 @@ class Player (pygame.sprite.Sprite):
         self.full_height = height
         self.mask = pygame.mask.from_surface(self.image)
         self.type = "player"
+        self.on_updown_elevator = False
+        self.on_leftright_elevator = False
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -169,3 +171,28 @@ class FragileGround(Ground):
         self.respawn_timer = 0
         self.broken = False  
         self.type = 'fragile_ground' # Type identifier for fragile ground objects
+
+
+class ElevatorUpDown(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, range):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 255, 255))  # Cyan color for elevator
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'elevator_up_down' # Type identifier for elevator objects
+        self.range = range
+        self.direction = 1
+        self.start_y = y
+
+class ElevatorLeftRight(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, range):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 255, 255))  # Cyan color for elevator
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'elevator_left_right' # Type identifier for elevator objects
+        self.range = range
+        self.direction = 1
+        self.start_x = x

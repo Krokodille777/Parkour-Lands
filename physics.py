@@ -35,6 +35,8 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.rect.right = c.rect.left
         player.pos.x = float(player.rect.x)
 
+        
+
     # Check spike triggers after horizontal movement
     for t in triggers:
         if getattr(t, "type", None) != "spike":
