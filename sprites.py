@@ -40,6 +40,8 @@ class Player (pygame.sprite.Sprite):
         self.on_updown_elevator = False
         self.on_leftright_elevator = False
         self.ground = None
+        self.on_ice = False
+        self.ice = None
 
     def handle_input(self):
         keys = pygame.key.get_pressed()
@@ -201,3 +203,16 @@ class ElevatorLeftRight(pygame.sprite.Sprite):
         self.start_x = x
         self.delta_x = 0
         self.delta_y = 0
+
+
+class Ice(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((173, 216, 230))  # Light blue color for ice
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'ice' # Type identifier for ice objects
+
+
+def retrieve_speeds()

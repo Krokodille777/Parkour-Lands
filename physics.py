@@ -2,9 +2,9 @@ import pygame
 from pygame.locals import *
 from sprites import Player
 
-
 GRAVITY = 1500
-
+ACCELERATION_SPEED = 400
+DECELERATION_SPEED = 600
 
 def apply_gravity(player, dt: float):
     player.vel.y += GRAVITY * dt
@@ -197,6 +197,7 @@ def apply_speed_zones(player, triggers):
                 player.vel.x *= 1.8
             elif t.type == "decelerator":
                 player.vel.x *= 0.4
+
 
 
 
