@@ -11,6 +11,7 @@ def apply_gravity(player, dt: float):
 
 def move_and_collide(player, colliders, dt: float, triggers):
     player.on_ground = False
+    player.on_ice = False
     player.ground = None
 
     # --- Horizontal pass ---
@@ -81,6 +82,8 @@ def move_and_collide(player, colliders, dt: float, triggers):
             player.vel.y = 0
             player.on_ground = True
             player.ground = c
+            if getattr(c, "type", None) == "ice":
+                player.on_ice = True
             if getattr(c, "type", None) == "jumppad":
                 player.vel.y = c.launch_vel
                 player.on_ground = False
@@ -103,6 +106,8 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.vel.y = 0
                 player.on_ground = True
                 player.ground = c
+                if getattr(c, "type", None) == "ice":
+                    player.on_ice = True
             else:
                 player.rect.top = c.rect.bottom
                 player.vel.y = max(player.vel.y, 0)
@@ -120,23 +125,27 @@ def move_and_collide(player, colliders, dt: float, triggers):
     
 
 
-    # Crouching adjustment: if player is crouching and there's a ceiling right above, keep them crouched
+    # Crouching adjustment: prevent standing up if there isn't enough room
 def crouching_adjustment(player, colliders):
     if not player.crouching:
         return
 
-    # Check for ceiling right above the player's head
-    player.rect.y = round(player.pos.y)  # Ensure rect is in sync with pos
+    # Build a test rect at full height (anchored at current bottom)
+    test_rect = pygame.Rect(
+        player.rect.x,
+        player.rect.bottom - player.full_height,
+        player.full_width,
+        player.full_height
+    )
+
     for c in colliders:
         if c is player:
             continue
-        if not player.rect.colliderect(c.rect):
-            continue
-        if player.vel.y <= 0 and player.rect.top < c.rect.bottom and player.rect.bottom > c.rect.top:
-            # There's a ceiling right above, keep crouching
+        if test_rect.colliderect(c.rect):
+            # Standing up would clip into this collider — stay crouched
             return
 
-    # No ceiling detected, can stand up
+    # Enough room — allow standing up
     player.crouching = False
 
 

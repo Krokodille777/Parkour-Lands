@@ -127,7 +127,7 @@ while running:
         player.rect.y = round(player.pos.y)
 
     # Player input & physics
-    player.handle_input()
+    player.handle_input(dt)
     # apply_speed_zones(player, speed_zones)
     apply_gravity(player, dt)
     move_and_collide(player, colliders, dt, triggers)

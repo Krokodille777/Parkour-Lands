@@ -22,6 +22,8 @@ class Ground (pygame.sprite.Sprite):
 class Player (pygame.sprite.Sprite):
     SPEED = 400
     JUMP_VEL = -700
+    ICE_ACCEL = 600       # How fast the player accelerates on ice (px/s²)
+    ICE_FRICTION = 300    # How fast the player decelerates on ice when no input (px/s²)
 
     def __init__(self, x, y, width, height):
         super().__init__()
@@ -43,15 +45,35 @@ class Player (pygame.sprite.Sprite):
         self.on_ice = False
         self.ice = None
 
-    def handle_input(self):
+    def handle_input(self, dt=1/60):
         keys = pygame.key.get_pressed()
 
-        # Horizontal movement
-        self.vel.x = 0
+        # Determine desired direction
+        direction = 0
         if keys[K_LEFT] or keys[K_a]:
-            self.vel.x = -self.SPEED
+            direction -= 1
         if keys[K_RIGHT] or keys[K_d]:
-            self.vel.x = self.SPEED
+            direction += 1
+
+        # Horizontal movement
+        if self.on_ice:
+            # On ice: gradually accelerate / decelerate (sliding feel)
+            if direction != 0:
+                self.vel.x += direction * self.ICE_ACCEL * dt
+                # Clamp to max speed
+                if self.vel.x > self.SPEED:
+                    self.vel.x = self.SPEED
+                elif self.vel.x < -self.SPEED:
+                    self.vel.x = -self.SPEED
+            else:
+                # No input: apply friction to slow down
+                if self.vel.x > 0:
+                    self.vel.x = max(0, self.vel.x - self.ICE_FRICTION * dt)
+                elif self.vel.x < 0:
+                    self.vel.x = min(0, self.vel.x + self.ICE_FRICTION * dt)
+        else:
+            # Normal ground: instant response
+            self.vel.x = direction * self.SPEED
 
         # Jumping
         if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and self.on_ground:
