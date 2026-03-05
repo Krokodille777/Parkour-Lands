@@ -214,5 +214,8 @@ class Ice(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'ice' # Type identifier for ice objects
 
+ACCELERATION_SPEED = 400
+DECELERATION_SPEED = 600
 
-def retrieve_speeds()
+def retrieve_speeds(_type: str):
+    return ACCELERATION_SPEED, DECELERATION_SPEED
