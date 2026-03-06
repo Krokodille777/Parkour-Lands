@@ -236,8 +236,38 @@ class Ice(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'ice' # Type identifier for ice objects
 
+
+
+#Portals
+
+class StartPortal(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((15, 61, 135))  # Light Blue color for start portal (like in Portal game)
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'start_portal' # Type identifier for start portal objects
+
+class EndPortal(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((235, 142, 2))  # Copper color for end portal (like in Portal game)
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'end_portal' # Type identifier for end portal objects
+
+
+
+
+
+
+
 ACCELERATION_SPEED = 400
 DECELERATION_SPEED = 600
 
 def retrieve_speeds(_type: str):
     return ACCELERATION_SPEED, DECELERATION_SPEED
+
+
