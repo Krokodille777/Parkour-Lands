@@ -8,6 +8,7 @@ from maincamera import follow_player
 from checkpoint import checkpoint_activation
 from fragile_ground import fragile_ground_check, respawn_fragile_ground
 from elevators import updown_elevator_movement, leftright_elevator_movement
+from portals import link_portals, teleport_player, cooldown_timer
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -44,6 +45,7 @@ test_wall2 = Ground(475, 280, 50, 150)
 test_wall2.image.fill((128, 128, 128))  # Gray color for test block
 
 blue_portal = StartPortal(350, 625, 50, 75)
+link_portals(blue_portal, orangw_portal)
 
 # spike_up = Spike(335, 310, 50, 40, 180)
 # spike_up2 = Spike(295, 310, 50, 40, 180)
@@ -67,9 +69,9 @@ lava_pool.image.fill((250, 112, 47))    # Orange color for lava
 
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, lava_pool, test_block3, test_wall1, test_block, test_wall2, test_wall, jump_Pad, blue_portal, orangw_portal]  # Add all collidable objects here
+colliders = [ground, lava_pool, test_block3, test_wall1, test_block, test_wall2, test_wall, jump_Pad]  # Add all solid objects here
 triggers = [lava_pool]  # Objects that trigger special interactions (like climbing or damage)
-dynamic_colliders = [blue_portal, orangw_portal]  # Colliders that can change state (like breaking)
+dynamic_colliders = []  # Moving solids like elevators go here
 
 water_group = pygame.sprite.LayeredUpdates()
 fragile_grounds = []
@@ -132,6 +134,9 @@ while running:
         elevator.delta_x = elevator.rect.x - prev_x
         elevator.delta_y = elevator.rect.y - prev_y
 
+        
+       
+
     # If the player was standing on a moving elevator last frame, carry them along with it
     if player.on_ground and player.ground in dynamic_colliders:
         player.pos.x += player.ground.delta_x
@@ -144,6 +149,10 @@ while running:
     # apply_speed_zones(player, speed_zones)
     apply_gravity(player, dt)
     move_and_collide(player, colliders, dt, triggers)
+    for portal in portals:
+        teleport_player(player, portal)
+    for portal in portals:
+        cooldown_timer(portal, dt)
     crouching_adjustment(player, colliders)
     climb_ladder(player, triggers)
     jump_from_the_top_of_ladder(player, triggers)

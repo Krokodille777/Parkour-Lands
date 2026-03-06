@@ -44,6 +44,7 @@ class Player (pygame.sprite.Sprite):
         self.ground = None
         self.on_ice = False
         self.ice = None
+        self.portal_lock = None
 
     def handle_input(self, dt=1/60):
         keys = pygame.key.get_pressed()
@@ -248,6 +249,8 @@ class StartPortal(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'start_portal' # Type identifier for start portal objects
+        self.linked_portal = None
+        self.cooldown = 0.0
 
 class EndPortal(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
@@ -257,6 +260,8 @@ class EndPortal(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'end_portal' # Type identifier for end portal objects
+        self.linked_portal = None
+        self.cooldown = 0.0
 
 
 
