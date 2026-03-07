@@ -156,9 +156,10 @@ class DynamicSpike(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.original_y = y  # Store the original y position for oscillation
-        self.amplitude = 20  # Oscillation amplitude in pixels
+        self.amplitude = 12  # Oscillation amplitude in pixels
         self.original_x = x  # Store the original x position for oscillation (if needed for horizontal movement)
-        self.frequency = 1.0  # Oscillation frequency in Hz
+        self.frequency = 0.75  # Oscillation frequency in Hz
+        self.phase = 0.0
         self.type = 'dynamic_spike' # Type identifier for dynamic spike object
 
 #Bridge class is similar to ground, but with different color and type identifier, so we can add different physics if needed in the future
@@ -219,7 +220,9 @@ class FragileGround(Ground):
         super().__init__(x, y, width, height)
         self.image.fill((169, 169, 169))  # Dark gray color for fragile ground
         self.break_timer = 0  
+        self.break_delay = 0.5
         self.respawn_timer = 0
+        self.breaking = False
         self.broken = False  
         self.type = 'fragile_ground' # Type identifier for fragile ground objects
 
