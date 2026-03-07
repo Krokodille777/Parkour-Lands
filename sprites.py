@@ -129,9 +129,10 @@ class Water (pygame.sprite.Sprite):
 class Spike(pygame.sprite.Sprite):
      def __init__(self, x, y, width, height, angle): #angle parameter will make spikes' class universal, as they will have similar physics, no matter the direction they point
         super().__init__()
+        self.angle = angle % 360
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         pygame.draw.polygon(self.image, (255, 0, 0), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the spike
-        self.image = pygame.transform.rotate(self.image, angle)  # Rotate the spike to the specified angle
+        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the spike to the specified angle
         self.rect = self.image.get_rect(topleft = (x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'spike' # Type identifier for spike object
@@ -148,9 +149,10 @@ class DynamicSpikePlatform(pygame.sprite.Sprite): #A platform where dynamic spik
 class DynamicSpike(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, angle):
         super().__init__()
+        self.angle = angle % 360
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         pygame.draw.polygon(self.image, (0, 0, 0), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the spike
-        self.image = pygame.transform.rotate(self.image, angle)  # Rotate the spike to the specified angle
+        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the spike to the specified angle
         self.rect = self.image.get_rect(topleft = (x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.original_y = y  # Store the original y position for oscillation

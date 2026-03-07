@@ -10,6 +10,7 @@ from checkpoint import checkpoint_activation
 from fragile_ground import fragile_ground_check, respawn_fragile_ground
 from elevators import updown_elevator_movement, leftright_elevator_movement
 from portals import link_portals, teleport_player, cooldown_timer
+from dynamic_spike import dynamic_spike_movement_based_on_timer
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -29,20 +30,20 @@ jump_Pad.image.fill((255, 255, 0))   # Yellowish
 
 # # Test block: short enough to jump over (50px tall)
 
-dynamic_spike_platform = DynamicSpikePlatform(60, 700, 77, 30)
-spike1 = DynamicSpike(60, 675, 30, 30, 0)
-spike2 = DynamicSpike(83, 675, 30, 30, 0)
-spike3 = DynamicSpike(106, 675, 30, 30, 0)
+dynamic_spike_platform = DynamicSpikePlatform(75, 700, 77, 30)
+spike1 = DynamicSpike(75, 695, 30, 30, 0)
+spike2 = DynamicSpike(99, 695, 30, 30, 0)
+spike3 = DynamicSpike(122, 695, 30, 30, 0)
 
 dynamic_spike_platform2 = DynamicSpikePlatform(323, 700, 77, 30)
-spike11 = DynamicSpike(323, 675, 30, 30, 0)
-spike21 = DynamicSpike(346, 675, 30, 30, 0)
-spike31 = DynamicSpike(369, 675, 30, 30, 0)
+spike11 = DynamicSpike(323, 695, 30, 30, 0)
+spike21 = DynamicSpike(346, 695, 30, 30, 0)
+spike31 = DynamicSpike(369, 695, 30, 30, 0)
 
 dynamic_spike_platform3 = DynamicSpikePlatform(1098, 150, 77, 30)
-spike12 = DynamicSpike(1098, 175, 30, 30, 180)
-spike22 = DynamicSpike(1121, 175, 30, 30, 180)
-spike32 = DynamicSpike(1144, 175, 30, 30, 180)
+spike12 = DynamicSpike(1098, 145, 30, 30, 180)
+spike22 = DynamicSpike(1121, 145, 30, 30, 180)
+spike32 = DynamicSpike(1144, 145, 30, 30, 180)
 
 fragilePlatform = FragileGround(875, 675, 50, 50)
 
@@ -71,7 +72,7 @@ link_portals(blue_portal, orangw_portal)
 
 ladder1 = Ladder(250, 515, 20, 150)
 bridge_upon_lava = Bridge(1000, 700, 100, 20)
-checkpoint1 = Checkpoint(95, 525, 50, 50)
+checkpoint1 = Checkpoint(10, 525, 50, 50)
 # water_pool = Water(912, 750, 400, 500)
 # water_pool.image.fill((0, 101, 255))    # Blue color for water
 
@@ -98,12 +99,12 @@ ice_plate_group.add(ice_plate, layer = 0)
 # water_group.add(water_pool, layer = 0)
 # speed_zones = [accelerator_block, decelerator_block]
 checkpoint_group = pygame.sprite.LayeredUpdates()
-
+dspikes = [spike1, spike2, spike3, spike11, spike21, spike31, spike12, spike22, spike32]
 checkpoint_group.add(checkpoint1, layer = 0)
 
 # Create sprite groups
 all_sprites = pygame.sprite.LayeredUpdates()
-all_sprites.add(ground, layer = 0)
+all_sprites.add(ground, layer = 1)
 all_sprites.add(island1, layer = 0)
 all_sprites.add(ground_under_ice, layer = 0)
 all_sprites.add(test_block, layer = 0)
@@ -164,8 +165,8 @@ while running:
         elevator.delta_y = elevator.rect.y - prev_y
 
         
-       
-
+    for dspike in dspikes:
+        dynamic_spike_movement_based_on_timer(dspike, dt)
     # If the player was standing on a moving elevator last frame, carry them along with it
     if player.on_ground and player.ground in dynamic_colliders:
         player.pos.x += player.ground.delta_x
@@ -189,6 +190,7 @@ while running:
     checkpoint_activation(player, checkpoint_group)
     fragile_ground_check(player, fragile_grounds, colliders, dt)
     respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)
+    
 
 
 
