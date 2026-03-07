@@ -292,7 +292,17 @@ class EndPortal(pygame.sprite.Sprite):
         self.cooldown = 0.0
 
 
-
+class Fan (pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, direction):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((192, 192, 192))  # Silver color for fan
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'fan' # Type identifier for fan objects
+        self.direction = direction  # Direction should be a normalized vector (e.g., (0, -1) for up)
+        self.force =6000
+        self.range = 850
 
 
 
