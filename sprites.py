@@ -136,6 +136,29 @@ class Spike(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'spike' # Type identifier for spike object
 
+class DynamicSpikePlatform(pygame.sprite.Sprite): #A platform where dynamic spikes are placed. It has the same physics as normal ground, but different color and type identifier, so we can add different physics if needed in the future.
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((128, 0, 0))  # Dark red color for dynamic spike platform
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'dynamic_spike_platform' # Type identifier for dynamic spike platform objects
+
+class DynamicSpike(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (0, 0, 0), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the spike
+        self.image = pygame.transform.rotate(self.image, angle)  # Rotate the spike to the specified angle
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.original_y = y  # Store the original y position for oscillation
+        self.amplitude = 20  # Oscillation amplitude in pixels
+        self.original_x = x  # Store the original x position for oscillation (if needed for horizontal movement)
+        self.frequency = 1.0  # Oscillation frequency in Hz
+        self.type = 'dynamic_spike' # Type identifier for dynamic spike object
+
 #Bridge class is similar to ground, but with different color and type identifier, so we can add different physics if needed in the future
 class Bridge (pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):

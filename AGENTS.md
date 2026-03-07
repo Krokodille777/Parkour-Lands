@@ -22,3 +22,4 @@ So, it's recommended:
 2. For searching and reading in parts, your built-in tools might be better, but AdvFS can also work for larger sections thanks to customizable parameters.
 3. For writing and editing, your built-in tools are unmatched, so use them for any modifications you need to make to files.
 4. Any additional commands (via `bash`) that you might need to run can be executed using your built-in tools as well.
+5. Never read non-text files with AdvFS, as it is not designed for that purpose and may not handle them correctly.
