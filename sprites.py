@@ -305,6 +305,47 @@ class Fan (pygame.sprite.Sprite):
         self.range = 850
 
 
+#Logic Sprites 
+
+class Button(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 255, 0))  # Green color for button
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'button' # Type identifier for button objects
+        self.linked_objects = []  # List of objects that this button controls
+
+class Door(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((139, 69, 19))  # Spruce color for door
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'door' # Type identifier for door objects
+        self.open = False
+
+class TrapDoor(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((139, 69, 19))  # Spruce color for trap door
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'trap_door' # Type identifier for trap door objects
+        self.open = False
+
+
+class PushableBlock(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((128, 128, 0))  # Olive color for pushable block
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'pushable_block' # Type identifier for pushable block objects
 
 
 ACCELERATION_SPEED = 400
