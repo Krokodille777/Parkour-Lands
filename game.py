@@ -9,9 +9,11 @@ from maincamera import follow_player
 from checkpoint import checkpoint_activation
 from fragile_ground import fragile_ground_check, respawn_fragile_ground
 from elevators import updown_elevator_movement, leftright_elevator_movement
-from portals import link_portals, teleport_player, cooldown_timer
+from portals import link_portals, teleport_player, cooldown_timer, teleport_pushable_block
 from dynamic_spike import dynamic_spike_movement_based_on_timer
-from fans import apply_fan_effect
+from fans import apply_fan_effect, apply_fan_effect_to_block
+from pushableBlock import push_the_block, triggers_check, block_collisions, on_ice, use_jumppad
+from button_door_trap import press_button, link_button_to_door, link_button_to_trapdoor, open_door_trapdoor
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))

@@ -7,19 +7,25 @@ def is_standing_on(player, platform):
         and player.rect.right > platform.rect.left
         and player.rect.left < platform.rect.right
     )
+def is_block_standing_on(block, platform):
+    return (
+        abs(block.rect.bottom - platform.rect.top) <= 2
+        and block.rect.right > platform.rect.left
+        and block.rect.left < platform.rect.right
+    )
 
 
-def trigger_fragile_ground(actor, fragile_grounds):
+def trigger_fragile_ground(actor, box, fragile_grounds):
     for fg in fragile_grounds:
         if fg.broken or fg.breaking:
             continue
-        if is_standing_on(actor, fg):
+        if is_standing_on(actor, fg) or is_block_standing_on(box, fg):
             fg.breaking = True
             fg.break_timer = 0
 
 
-def fragile_ground_check(player, fragile_grounds, colliders, dt):
-    trigger_fragile_ground(player, fragile_grounds)
+def fragile_ground_check(player, box, fragile_grounds, colliders, dt):
+    trigger_fragile_ground(player, box, fragile_grounds)
 
     for fg in fragile_grounds:
         if fg.broken or not fg.breaking:
