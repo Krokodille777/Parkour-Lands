@@ -3,7 +3,7 @@ from pygame.locals import *
 
 from sprites import Ground, Player, Fan, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint, FragileGround, ElevatorUpDown, ElevatorLeftRight, Ice, StartPortal, EndPortal, DynamicSpike
 from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock
-from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder
+from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder, squash_adjustment
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
 from maincamera import follow_player
 from checkpoint import checkpoint_activation
@@ -20,11 +20,11 @@ screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption("Platformer")
 
 clock = pygame.time.Clock()
-player = Player(45, 250, 50, 50)
+player = Player(60, 250, 50, 50)
 # Create sprite instances
 ground = Ground(0, 700, 400, 900)
 
-box = PushableBlock(200, 625, 75, 75)
+box = PushableBlock(60, 100, 85, 85)
 button1 = Button(300, 675, 75, 25)
 door1 = Door(700, 700, 50, 100)
 trapdoor1 = TrapDoor(900, 800, 150, 50)
@@ -256,6 +256,7 @@ while running:
     for portal in portals:
         cooldown_timer(portal, dt)
     crouching_adjustment(player, colliders)
+    squash_adjustment(player, colliders)
     climb_ladder(player, triggers)
     jump_from_the_top_of_ladder(player, triggers)
     buoyant_force(player, triggers) 

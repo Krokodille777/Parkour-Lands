@@ -21,7 +21,7 @@ class Ground (pygame.sprite.Sprite):
 
 class Player (pygame.sprite.Sprite):
     SPEED = 400
-    JUMP_VEL = -700
+    JUMP_VEL = -750
     ICE_ACCEL = 600       # How fast the player accelerates on ice (px/s²)
     ICE_FRICTION = 300    # How fast the player decelerates on ice when no input (px/s²)
 
@@ -35,6 +35,7 @@ class Player (pygame.sprite.Sprite):
         self.on_ground = False
         self.spawn_point = pygame.math.Vector2(x, y)
         self.crouching = False
+        self.squashed = False # squashing is similar to crouching, but unlike crouching, it shortens the player's width.
         self.full_width = width
         self.full_height = height
         self.mask = pygame.mask.from_surface(self.image)
@@ -90,6 +91,16 @@ class Player (pygame.sprite.Sprite):
         elif not self.crouching:
                 self.image = pygame.Surface((self.full_width, self.full_height))
                 self.image.fill((0, 0, 255))
+       
+
+        if keys[K_v]:
+            self.squashed = True
+
+            self.image = pygame.Surface((self.full_width // 2, self.full_height))
+            self.image.fill((0, 0, 255))
+        elif not self.crouching:
+            self.image = pygame.Surface((self.full_width, self.full_height))
+            self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
         self.pos.y = float(self.rect.y)
         self.mask = pygame.mask.from_surface(self.image)

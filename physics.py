@@ -149,7 +149,27 @@ def crouching_adjustment(player, colliders):
     # Enough room — allow standing up
     player.crouching = False
 
+def squash_adjustment(player, colliders):
+    if not player.squashed:
+        return
 
+    # Build a test rect at full width (anchored at current center)
+    test_rect = pygame.Rect(
+        player.rect.centerx - player.full_width // 2,  # Center the rect horizontally
+        player.rect.y,  # Keep the same y position
+        player.full_width,
+        player.full_height
+    )
+
+    for c in colliders:
+        if c is player:
+            continue
+        if test_rect.colliderect(c.rect):
+            # Unsquashing would clip into this collider — stay squashed
+            return
+
+    # Enough room — allow unsquashing
+    player.squashed = False
 
 
 #Gravity should affect only if you fall off the ladder, not while climbing. So we apply gravity in the main loop as usual, but if the player is on a ladder and pressing up/down, we override the vertical velocity and skip gravity for that frame.
