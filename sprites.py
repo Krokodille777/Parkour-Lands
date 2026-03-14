@@ -447,6 +447,153 @@ class PushableBlock(pygame.sprite.Sprite):
             self.vel.x = 0
 
 
+class PressTrap(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.image.fill((207, 207, 207, 255))  # Light gray color for press trap
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'press_trap' # Type identifier for press trap objects
+class RestartButton(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 255, 0))  # Emerald color for restart button
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'restart_button' # Type identifier for restart button objects
+
+class SwingingVine(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((34, 139, 34))  # Forest green color for vine
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'swinging_vine' # Type identifier for swinging vine objects
+
+class AlterCreator(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((255, 20, 147))  # Deep pink color for alter creator
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'alter_creator' # Type identifier for alter creator objects
+
+class AlterRemover(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((255, 105, 180))  # Hot pink color for alter remover
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'alter_remover' # Type identifier for alter remover objects
+
+#Alterplayer is a special type of player which can be created and removed by alter creator and alter remover.
+# Alter player can serve as a temporary helper you can take control of to reach certain places. 
+# Alter player has the same physics as normal player, but different color and type identifier, so we can add different physics if needed in the future.
+# To take control of alter player, player needs to press "2" key. It will automatically freeze the original player and move it to the older player's posittion.
+# Alter players may be very useful during puzzle-solving parts.
+# I don't know how I am going to implement this yet, It will be so interesting if it finally works. 
+        
+class AlterPlayer(pygame.sprite.Sprite):
+    SPEED = 400
+    JUMP_VEL = -750
+    ICE_ACCEL = 600       # How fast the player accelerates on ice (px/s²)
+    ICE_FRICTION = 300    # How fast the player decelerates on ice when no input (px/s²)
+
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((255, 255, 0)) #Yellow
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.vel = pygame.math.Vector2(0, 0)
+        self.on_ground = False
+        self.spawn_point = pygame.math.Vector2(x, y)
+        self.crouching = False
+        self.squashed = False # squashing is similar to crouching, but unlike crouching, it shortens the player's width.
+        self.full_width = width
+        self.full_height = height
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = "player"
+        self.on_updown_elevator = False
+        self.on_leftright_elevator = False
+        self.ground = None
+        self.on_ice = False
+        self.ice = None
+        self.portal_lock = None
+
+    def handle_input(self, dt=1/60):
+        keys = pygame.key.get_pressed()
+
+        # Determine desired direction
+        direction = 0
+        if keys[K_LEFT] or keys[K_a]:
+            direction -= 1
+        if keys[K_RIGHT] or keys[K_d]:
+            direction += 1
+
+        # Horizontal movement
+        if self.on_ice:
+            # On ice: gradually accelerate / decelerate (sliding feel)
+            if direction != 0:
+                self.vel.x += direction * self.ICE_ACCEL * dt
+                # Clamp to max speed
+                if self.vel.x > self.SPEED:
+                    self.vel.x = self.SPEED
+                elif self.vel.x < -self.SPEED:
+                    self.vel.x = -self.SPEED
+            else:
+                # No input: apply friction to slow down
+                if self.vel.x > 0:
+                    self.vel.x = max(0, self.vel.x - self.ICE_FRICTION * dt)
+                elif self.vel.x < 0:
+                    self.vel.x = min(0, self.vel.x + self.ICE_FRICTION * dt)
+        else:
+            # Normal ground: instant response
+            self.vel.x = direction * self.SPEED
+
+        # Jumping
+        if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and self.on_ground:
+            self.vel.y = self.JUMP_VEL
+            self.on_ground = False
+
+        # Crouching
+        bottom = self.rect.bottom
+        if keys[K_c]:
+                self.crouching = True
+                self.image = pygame.Surface((self.full_width, self.full_height // 2))
+                self.image.fill((0, 0, 255))
+        elif not self.crouching:
+                self.image = pygame.Surface((self.full_width, self.full_height))
+                self.image.fill((0, 0, 255))
+       
+
+        if keys[K_v]:
+            self.squashed = True
+
+            self.image = pygame.Surface((self.full_width // 2, self.full_height))
+            self.image.fill((0, 0, 255))
+        elif not self.crouching:
+            self.image = pygame.Surface((self.full_width, self.full_height))
+            self.image.fill((0, 0, 255))
+        self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
+        self.pos.y = float(self.rect.y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class FinishLevelTrigger(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((255, 215, 0))  # Gold color for finish level trigger
+        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'finish_level_trigger' # Type identifier for finish level trigger objects
+
 ACCELERATION_SPEED = 400
 DECELERATION_SPEED = 600
 
