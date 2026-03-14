@@ -6,7 +6,7 @@ import pygame
 
 from physics import apply_gravity, move_and_collide
 
-HAZARD_TYPES = {"spike", "dynamic_spike", "lava"}
+HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
 PUSH_TOLERANCE = 4
 
 

@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player, Fan, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint, FragileGround, ElevatorUpDown, ElevatorLeftRight, Ice, StartPortal, EndPortal, DynamicSpike
-from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock
+from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock, AlterCreator, AlterPlayer, AlterRemover, PressTrap, SwingingVine
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder, squash_adjustment
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
 from maincamera import follow_player

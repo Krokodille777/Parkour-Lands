@@ -101,6 +101,7 @@ class Player (pygame.sprite.Sprite):
         elif not self.crouching:
             self.image = pygame.Surface((self.full_width, self.full_height))
             self.image.fill((0, 0, 255))
+
         self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
         self.pos.y = float(self.rect.y)
         self.mask = pygame.mask.from_surface(self.image)
@@ -448,13 +449,40 @@ class PushableBlock(pygame.sprite.Sprite):
 
 
 class PressTrap(pygame.sprite.Sprite):
+    ANGLE_TO_DIRECTION = {
+        0: "up",
+        90: "right",
+        180: "down",
+        270: "left",
+    }
+
     def __init__(self, x, y, width, height, angle):
         super().__init__()
+        self.color = (207, 207, 207, 255)
+        self.angle = angle % 360
+        self.direction = self.ANGLE_TO_DIRECTION.get(self.angle, "down")
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
-        self.image.fill((207, 207, 207, 255))  # Light gray color for press trap
+        self.image.fill(self.color)  # Light gray color for press trap
+        self.image = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'press_trap' # Type identifier for press trap objects
+        self.original_x = self.rect.x
+        self.original_y = self.rect.y
+        self.original_width = self.rect.width
+        self.original_height = self.rect.height
+        self.range = 96
+        self.amplitude = self.range
+        self.move_duration = 0.35
+        self.extended_wait_time = 0.45
+        self.retracted_wait_time = 0.8
+        self.state = "waiting_retracted"
+        self.state_timer = 0.0
+        self.phase = 0.0
+        self.extension = 0
+
+
+
 class RestartButton(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
@@ -498,91 +526,14 @@ class AlterRemover(pygame.sprite.Sprite):
 # Alter players may be very useful during puzzle-solving parts.
 # I don't know how I am going to implement this yet, It will be so interesting if it finally works. 
         
-class AlterPlayer(pygame.sprite.Sprite):
-    SPEED = 400
-    JUMP_VEL = -750
-    ICE_ACCEL = 600       # How fast the player accelerates on ice (px/s²)
-    ICE_FRICTION = 300    # How fast the player decelerates on ice when no input (px/s²)
-
+class AlterPlayer(Player):
     def __init__(self, x, y, width, height):
-        super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((255, 255, 0)) #Yellow
-        self.rect = self.image.get_rect(topleft = (x, y))
-        self.pos = pygame.math.Vector2(self.rect.topleft)
-        self.vel = pygame.math.Vector2(0, 0)
-        self.on_ground = False
-        self.spawn_point = pygame.math.Vector2(x, y)
-        self.crouching = False
-        self.squashed = False # squashing is similar to crouching, but unlike crouching, it shortens the player's width.
-        self.full_width = width
-        self.full_height = height
+        super().__init__(x, y, width, height)
+        self.image.fill((255, 20, 147))  # Deep pink color for alter player
         self.mask = pygame.mask.from_surface(self.image)
-        self.type = "player"
-        self.on_updown_elevator = False
-        self.on_leftright_elevator = False
-        self.ground = None
-        self.on_ice = False
-        self.ice = None
-        self.portal_lock = None
+        self.type = 'alter_player' # Type identifier for alter player objects
 
-    def handle_input(self, dt=1/60):
-        keys = pygame.key.get_pressed()
 
-        # Determine desired direction
-        direction = 0
-        if keys[K_LEFT] or keys[K_a]:
-            direction -= 1
-        if keys[K_RIGHT] or keys[K_d]:
-            direction += 1
-
-        # Horizontal movement
-        if self.on_ice:
-            # On ice: gradually accelerate / decelerate (sliding feel)
-            if direction != 0:
-                self.vel.x += direction * self.ICE_ACCEL * dt
-                # Clamp to max speed
-                if self.vel.x > self.SPEED:
-                    self.vel.x = self.SPEED
-                elif self.vel.x < -self.SPEED:
-                    self.vel.x = -self.SPEED
-            else:
-                # No input: apply friction to slow down
-                if self.vel.x > 0:
-                    self.vel.x = max(0, self.vel.x - self.ICE_FRICTION * dt)
-                elif self.vel.x < 0:
-                    self.vel.x = min(0, self.vel.x + self.ICE_FRICTION * dt)
-        else:
-            # Normal ground: instant response
-            self.vel.x = direction * self.SPEED
-
-        # Jumping
-        if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and self.on_ground:
-            self.vel.y = self.JUMP_VEL
-            self.on_ground = False
-
-        # Crouching
-        bottom = self.rect.bottom
-        if keys[K_c]:
-                self.crouching = True
-                self.image = pygame.Surface((self.full_width, self.full_height // 2))
-                self.image.fill((0, 0, 255))
-        elif not self.crouching:
-                self.image = pygame.Surface((self.full_width, self.full_height))
-                self.image.fill((0, 0, 255))
-       
-
-        if keys[K_v]:
-            self.squashed = True
-
-            self.image = pygame.Surface((self.full_width // 2, self.full_height))
-            self.image.fill((0, 0, 255))
-        elif not self.crouching:
-            self.image = pygame.Surface((self.full_width, self.full_height))
-            self.image.fill((0, 0, 255))
-        self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
-        self.pos.y = float(self.rect.y)
-        self.mask = pygame.mask.from_surface(self.image)
 
 
 class FinishLevelTrigger(pygame.sprite.Sprite):

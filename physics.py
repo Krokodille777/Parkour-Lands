@@ -3,7 +3,7 @@ from pygame.locals import *
 from sprites import Player
 
 GRAVITY = 1500
-HAZARD_TYPES = {"spike", "dynamic_spike", "lava"}
+HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
 
 
 def apply_gravity(player, dt: float):
