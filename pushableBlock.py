@@ -87,3 +87,5 @@ def on_ice(block, colliders):
 
 def use_jumppad(block, colliders):
     return getattr(block.ground, "type", None) == "jumppad"
+
+

@@ -14,7 +14,7 @@ from dynamic_spike import dynamic_spike_movement_based_on_timer
 from fans import apply_fan_effect, apply_fan_effect_to_block
 from pushableBlock import push_the_block, triggers_check, block_collisions
 from button_door_trap import press_button, link_button_to_door, link_button_to_trapdoor, open_door_trapdoor
-from press_trap import apply_press_trap_effect, update_press_trap
+from press_trap import update_press_trap
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -25,7 +25,7 @@ player = Player(60, 250, 50, 50)
 # Create sprite instances
 ground = Ground(0, 700, 400, 900)
 
-press_trap1 = PressTrap(250, 575, 150, 75, 0, range=100, move_duration=0.5, retracted_wait_time=1.0, extended_wait_time=1.0)
+press_trap1 = PressTrap(250, 525, 150, 75, 180)
 
 
 # Colliders list (everything the player can collide with)
@@ -34,7 +34,7 @@ triggers = [press_trap1]   # Objects that trigger special interactions (like cli
 dynamic_colliders = []  # Moving solids like elevators go here
 boxes = []
 buttons = []
-press_traps = [press_trap1]
+
 doors = []
 trapdoors = []
 water_group = pygame.sprite.LayeredUpdates()
@@ -125,7 +125,7 @@ while running:
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
-
+      
     # Move elevators before resolving player collisions so the player can ride them naturally
     for elevator in dynamic_colliders:
         prev_x, prev_y = elevator.rect.x, elevator.rect.y
@@ -135,13 +135,10 @@ while running:
             leftright_elevator_movement(elevator, elevator.range, dt)
         elevator.delta_x = elevator.rect.x - prev_x
         elevator.delta_y = elevator.rect.y - prev_y
-
+    update_press_trap(press_trap1, dt)
     for dspike in dspikes:
         dynamic_spike_movement_based_on_timer(dspike, dt)
     # If the player was standing on a moving elevator last frame, carry them along with it
-    for press in press_traps:
-        apply_press_trap_effect(player, press, dt)
-        update_press_trap(press, dt)
     if player.on_ground and player.ground in dynamic_colliders:
         player.pos.x += player.ground.delta_x
         player.pos.y += player.ground.delta_y
@@ -185,6 +182,9 @@ while running:
     respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)
     
 
+    # Press X to reset the level. It my happen if the player gets stuck or a valuable item gets lost in an unreachable place, so it's good to have a quick way to reset the level without closing the game.
+    # it also relates to pushable blocks, as they can get pushed into unreachable places and cause softlocks, so being able to reset the level without closing the game is very helpful for testing and gameplay.
+    
 
 
 

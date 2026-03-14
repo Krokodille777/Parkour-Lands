@@ -35,16 +35,16 @@ def get_trap_area(trap):
 def _apply_extension(trap, extension):
     extension_px = max(0, min(int(round(extension)), trap.range))
 
-    if trap.direction == 0:
+    if trap.direction == "down":
          size = (trap.original_width, trap.original_height + extension_px)
          topleft = (trap.original_x, trap.original_y)
-    elif trap.direction == 180:
+    elif trap.direction == "up":
         size = (trap.original_width, trap.original_height + extension_px)
         topleft = (trap.original_x, trap.original_y - extension_px)
-    elif trap.direction == 90:
+    elif trap.direction == "right":
         size = (trap.original_width + extension_px, trap.original_height)
         topleft = (trap.original_x, trap.original_y)
-    else:  # trap.direction == 270
+    else:  # trap.direction == "left"
         size = (trap.original_width + extension_px, trap.original_height)
         topleft = (trap.original_x - extension_px, trap.original_y)
 
@@ -73,34 +73,37 @@ def _set_state(trap, state):
         _apply_extension(trap, trap.range)
     
 def update_press_trap(trap, dt):
-      if trap.state == "waiting_retracted":
+    if trap.state == "waiting_retracted":
           trap.state_timer += dt
-      if trap.state_timer >= trap.retracted_wait_time:
-       _set_state(trap, "extending")
-      else:
-         _apply_extension(trap, 0)
-         return
+          _apply_extension(trap, 0)
+          if trap.state_timer >= trap.retracted_wait_time:
+              _set_state(trap, "extending")
+          return
 
-      if trap.state == "extending":
-        trap.state_timer += dt
-        progress = min(1.0, trap.state_timer / trap.move_duration)
-        extension = _wave_extension(trap, progress * math.pi)
-        _apply_extension(trap, extension)
-      if progress >= 1.0:
-           _set_state(trap, "waiting_extended")
-           return
-      if trap.state == "waiting_extended":
-        trap.state_timer += dt
-        _apply_extension(trap, trap.range)
-        return
-      
-      if trap.state == "retracting":
-         trap.state_timer += dt
-         progress = min(1.0, trap.state_timer / trap.move_duration)
-         extension = _wave_extension(trap, math.pi + progress * math.pi)
-         _apply_extension(trap, extension)
-         if progress >= 1.0:
-             _set_state(trap, "waiting_retracted")
+    if trap.state == "extending":
+          trap.state_timer += dt
+          progress = min(1.0, trap.state_timer / trap.move_duration)
+          extension = _wave_extension(trap, progress * math.pi)
+          _apply_extension(trap, extension)
+          if progress >= 1.0:
+              _set_state(trap, "waiting_extended")
+          return
+
+    if trap.state == "waiting_extended":
+          trap.state_timer += dt
+          _apply_extension(trap, trap.range)
+          if trap.state_timer >= trap.extended_wait_time:
+              _set_state(trap, "retracting")
+          return
+
+    if trap.state == "retracting":
+          trap.state_timer += dt
+          progress = min(1.0, trap.state_timer / trap.move_duration)
+          extension = _wave_extension(trap, math.pi + progress * math.pi)
+          _apply_extension(trap, extension)
+          if progress >= 1.0:
+              _set_state(trap, "waiting_retracted")
+
   
   
 def apply_press_trap_effect(player, trap, dt):

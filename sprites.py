@@ -102,6 +102,14 @@ class Player (pygame.sprite.Sprite):
             self.image = pygame.Surface((self.full_width, self.full_height))
             self.image.fill((0, 0, 255))
 
+
+        if keys[K_x]:
+            self.pos = pygame.math.Vector2(60, 250)
+            self.rect.topleft = self.pos
+            self.vel = pygame.math.Vector2(0, 0)
+            
+           
+
         self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
         self.pos.y = float(self.rect.y)
         self.mask = pygame.mask.from_surface(self.image)
@@ -456,7 +464,7 @@ class PressTrap(pygame.sprite.Sprite):
         270: "left",
     }
 
-    def __init__(self, x, y, width, height, angle, range, move_duration, retracted_wait_time, extended_wait_time):
+    def __init__(self, x, y, width, height, angle):
         super().__init__()
         self.color = (207, 207, 207, 255)
         self.angle = angle % 360
@@ -471,11 +479,11 @@ class PressTrap(pygame.sprite.Sprite):
         self.original_y = self.rect.y
         self.original_width = self.rect.width
         self.original_height = self.rect.height
-        self.range = range
+        self.range = 100
         self.amplitude = self.range
-        self.move_duration = move_duration
-        self.extended_wait_time = extended_wait_time
-        self.retracted_wait_time = retracted_wait_time
+        self.move_duration = 0.5
+        self.extended_wait_time = 1.0
+        self.retracted_wait_time = 1.0
         self.state = "waiting_retracted"
         self.state_timer = 0.0
         self.phase = 0.0
@@ -483,14 +491,7 @@ class PressTrap(pygame.sprite.Sprite):
 
 
 
-class RestartButton(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
-        super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((0, 255, 0))  # Emerald color for restart button
-        self.rect = self.image.get_rect(topleft = (x ,y))
-        self.mask = pygame.mask.from_surface(self.image)
-        self.type = 'restart_button' # Type identifier for restart button objects
+
 
 class SwingingVine(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
