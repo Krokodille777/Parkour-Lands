@@ -228,14 +228,6 @@ while running:
         elevator.delta_x = elevator.rect.x - prev_x
         elevator.delta_y = elevator.rect.y - prev_y
 
-    for b in boxes:
-        push_the_block(player, b)
-        for fan in fans:
-            apply_fan_effect_to_block(b, fan, dt)
-        block_collisions(b, colliders, dt, triggers)
-        triggers_check(b, triggers)
-        for portal in portals:
-            teleport_pushable_block(b, portal)
     for dspike in dspikes:
         dynamic_spike_movement_based_on_timer(dspike, dt)
     # If the player was standing on a moving elevator last frame, carry them along with it
@@ -246,6 +238,14 @@ while running:
         player.rect.y = round(player.pos.y)
     # Player input & physics
     player.handle_input(dt)
+    for b in boxes:
+        push_the_block(player, b, dt)
+        for fan in fans:
+            apply_fan_effect_to_block(b, fan, dt)
+        block_collisions(b, colliders, dt, triggers)
+        triggers_check(b, triggers)
+        for portal in portals:
+            teleport_pushable_block(b, portal)
     # apply_speed_zones(player, speed_zones)
     apply_gravity(player, dt)
     for fan in fans:

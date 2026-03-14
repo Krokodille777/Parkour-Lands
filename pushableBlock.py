@@ -7,20 +7,38 @@ import pygame
 from physics import apply_gravity, move_and_collide
 
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava"}
+PUSH_TOLERANCE = 4
 
 
-def push_the_block(player, block):
+def _vertical_overlap(rect_a, rect_b):
+    return rect_a.bottom > rect_b.top + 4 and rect_a.top < rect_b.bottom - 4
+
+
+def push_the_block(player, block, dt):
     pushing = False
-    if player.rect.colliderect(block.rect):
-        if player.vel.x > 0 and player.rect.centerx <= block.rect.centerx:
+    player_next_rect = player.rect.move(round(player.vel.x * dt), 0)
+
+    if _vertical_overlap(player.rect, block.rect):
+        moving_into_left_side = (
+            player.vel.x > 0
+            and player.rect.right <= block.rect.left + PUSH_TOLERANCE
+            and player_next_rect.right >= block.rect.left
+        )
+        moving_into_right_side = (
+            player.vel.x < 0
+            and player.rect.left >= block.rect.right - PUSH_TOLERANCE
+            and player_next_rect.left <= block.rect.right
+        )
+
+        if moving_into_left_side or (player.rect.colliderect(block.rect) and player.vel.x > 0 and player.rect.centerx <= block.rect.centerx):
             block.vel.x = max(block.vel.x, player.vel.x)
             pushing = True
-        elif player.vel.x < 0 and player.rect.centerx >= block.rect.centerx:
+        elif moving_into_right_side or (player.rect.colliderect(block.rect) and player.vel.x < 0 and player.rect.centerx >= block.rect.centerx):
             block.vel.x = min(block.vel.x, player.vel.x)
             pushing = True
 
     if not pushing:
-        block.handle_input()
+        block.handle_input(dt)
 
 
 def triggers_check(*args):
