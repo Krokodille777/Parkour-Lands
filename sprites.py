@@ -301,8 +301,8 @@ class Fan (pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'fan' # Type identifier for fan objects
         self.direction = direction  # Direction should be a normalized vector (e.g., (0, -1) for up)
-        self.force =6000
-        self.range = 850
+        self.force =7500
+        self.range = 1050
 
 
 #Logic Sprites 
@@ -310,32 +310,84 @@ class Fan (pygame.sprite.Sprite):
 class Button(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
+        self.released_color = (0, 255, 0)
+        self.pressed_color = (0, 180, 0)
         self.image = pygame.Surface((width, height))
-        self.image.fill((0, 255, 0))  # Green color for button
+        self.image.fill(self.released_color)  # Green color for button
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'button' # Type identifier for button objects
         self.linked_objects = []  # List of objects that this button controls
+        self.pressed = False
+
+    def set_pressed(self, pressed):
+        self.pressed = pressed
+        self.image.fill(self.pressed_color if pressed else self.released_color)
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((139, 69, 19))  # Spruce color for door
-        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.closed_color = (139, 69, 19)
+        self.base_topleft = (x, y)
+        self.original_width = width
+        self.original_height = height
+        self.closed_image = pygame.Surface((width, height))
+        self.closed_image.fill(self.closed_color)  # Spruce color for door
+        self.image = self.closed_image.copy()
+        self.rect = self.image.get_rect(topleft = self.base_topleft)
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'door' # Type identifier for door objects
         self.open = False
+        self.linked_button = None
+
+    def set_open(self, is_open):
+        self.open = is_open
+        if self.open:
+            self.image = pygame.Surface((self.original_width, self.original_height), pygame.SRCALPHA)
+            self.image.fill((0, 0, 0, 0))
+            self.rect = pygame.Rect(self.base_topleft[0], self.base_topleft[1], self.original_width, 0)
+        else:
+            self.image = self.closed_image.copy()
+            self.rect = pygame.Rect(
+                self.base_topleft[0],
+                self.base_topleft[1],
+                self.original_width,
+                self.original_height,
+            )
+        self.mask = pygame.mask.from_surface(self.image)
 
 class TrapDoor(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((139, 69, 19))  # Spruce color for trap door
-        self.rect = self.image.get_rect(topleft = (x ,y))
+        self.closed_color = (110, 60, 18)
+        self.base_topleft = (x, y)
+        self.original_width = width
+        self.original_height = height
+        self.closed_image = pygame.Surface((width, height))
+        self.closed_image.fill(self.closed_color)  # Spruce color for trap door
+        self.image = self.closed_image.copy()
+        self.rect = self.image.get_rect(topleft = self.base_topleft)
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'trap_door' # Type identifier for trap door objects
         self.open = False
+        self.linked_button = None
+
+    def set_open(self, is_open):
+        self.open = is_open
+        if self.open:
+            self.image = pygame.Surface((self.original_width, self.original_height), pygame.SRCALPHA)
+            self.image.fill((0, 0, 0, 0))
+            self.rect = pygame.Rect(self.base_topleft[0], self.base_topleft[1], self.original_width, 0)
+        else:
+            self.image = self.closed_image.copy()
+            self.rect = pygame.Rect(
+                self.base_topleft[0],
+                self.base_topleft[1],
+                self.original_width,
+                self.original_height,
+            )
+        self.mask = pygame.mask.from_surface(self.image)
 
 
 class PushableBlock(pygame.sprite.Sprite):
@@ -350,6 +402,7 @@ class PushableBlock(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'pushable_block' # Type identifier for pushable block objects
+        self.pos = pygame.math.Vector2(self.rect.topleft)
         self.on_ice = False
         self.on_ground = False
         self.vel = pygame.math.Vector2(0, 0)
@@ -359,11 +412,13 @@ class PushableBlock(pygame.sprite.Sprite):
         self.ice = None
         self.ground = None
         self.spawn_point = pygame.math.Vector2(x, y)
+        self.delta_x = 0
+        self.delta_y = 0
 
     def handle_input(self, dt=1/60):
+        direction = 0
         if self.on_ice:
             # On ice: gradually accelerate / decelerate (sliding feel)
-            direction = 0
             if direction != 0:
                 self.vel.x += direction * self.ICE_ACCEL * dt
                 # Clamp to max speed
@@ -378,8 +433,7 @@ class PushableBlock(pygame.sprite.Sprite):
                 elif self.vel.x < 0:
                     self.vel.x = min(0, self.vel.x + self.ICE_FRICTION * dt)
         else:
-            # Normal ground: instant response
-            self.vel.x = direction * self.SPEED
+            self.vel.x = 0
 
 
 ACCELERATION_SPEED = 400

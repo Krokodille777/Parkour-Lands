@@ -6,42 +6,41 @@ Shortly about them:
 Buttons themselves are useless until they are linked to something. Only things they can be linked to are doors and traps. When a button is pressed, it will activate all linked objects. When a button is released, it will deactivate all linked objects.
 
 '''
-import pygame
-from sprites import Player, PushableBlock
 
-def press_button(player, block, buttons):
+
+def _iter_blocks(blocks):
+    if blocks is None:
+        return []
+    if hasattr(blocks, "rect"):
+        return [blocks]
+    return [block for block in blocks if hasattr(block, "rect")]
+
+
+def press_button(player, blocks, buttons):
     for button in buttons:
-        if player.colliderect(button.rect) or block.rect.colliderect(button.rect):
-            button.pressed = True
-        else:
-            button.pressed = False
+        player_pressing = player.rect.colliderect(button.rect)
+        block_pressing = any(block.rect.colliderect(button.rect) for block in _iter_blocks(blocks))
+        button.set_pressed(player_pressing or block_pressing)
+
 
 def link_button_to_door(buttons, doors):
-    for button in buttons:
-        for door in doors:
-            if getattr(door, "linked_button", None) == button:
-                door.open = button.pressed
+    for door in doors:
+        linked_button = getattr(door, "linked_button", None)
+        linked_from_button = any(door in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        door.open = bool((linked_button and linked_button.pressed) or linked_from_button)
+
 
 def link_button_to_trapdoor(buttons, traps):
-    for button in buttons:
-        for trap in traps:
-            if getattr(trap, "linked_button", None) == button:
-                trap.active = button.pressed
+    for trap in traps:
+        linked_button = getattr(trap, "linked_button", None)
+        linked_from_button = any(trap in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        trap.open = bool((linked_button and linked_button.pressed) or linked_from_button)
+
 
 def open_door_trapdoor(doors, traps):
     for door in doors:
-        if door.open:
-            door.rect.height = 0
-            door.mask = pygame.mask.from_surface(door.image)
-        else:
-            door.rect.height = door.original_height
-            door.mask = pygame.mask.from_surface(door.image)
+        door.set_open(door.open)
     for trap in traps:
-        if trap.active:
-            trap.rect.height = trap.original_height
-            trap.mask = pygame.mask.from_surface(trap.image)
-        else:
-            trap.rect.height = 0
-            trap.mask = pygame.mask.from_surface(trap.image)
+        trap.set_open(trap.open)
 
 

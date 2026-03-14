@@ -3,6 +3,7 @@ from pygame.locals import *
 from sprites import Player
 
 GRAVITY = 1500
+HAZARD_TYPES = {"spike", "dynamic_spike", "lava"}
 
 
 def apply_gravity(player, dt: float):
@@ -56,7 +57,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
 
     # Check spike triggers after horizontal movement
     for t in triggers:
-        if getattr(t, "type", None) != "spike" and getattr(t, "type", None) != "dynamic_spike":
+        if getattr(t, "type", None) not in HAZARD_TYPES:
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
@@ -113,7 +114,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.vel.y = max(player.vel.y, 0)
         player.pos.y = float(player.rect.y)
     for t in triggers:
-        if getattr(t, "type", None) != "spike" and getattr(t, "type", None) != "dynamic_spike":
+        if getattr(t, "type", None) not in HAZARD_TYPES:
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
