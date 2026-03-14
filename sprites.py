@@ -456,7 +456,7 @@ class PressTrap(pygame.sprite.Sprite):
         270: "left",
     }
 
-    def __init__(self, x, y, width, height, angle):
+    def __init__(self, x, y, width, height, angle, range, move_duration, retracted_wait_time, extended_wait_time):
         super().__init__()
         self.color = (207, 207, 207, 255)
         self.angle = angle % 360
@@ -471,11 +471,11 @@ class PressTrap(pygame.sprite.Sprite):
         self.original_y = self.rect.y
         self.original_width = self.rect.width
         self.original_height = self.rect.height
-        self.range = 96
+        self.range = range
         self.amplitude = self.range
-        self.move_duration = 0.35
-        self.extended_wait_time = 0.45
-        self.retracted_wait_time = 0.8
+        self.move_duration = move_duration
+        self.extended_wait_time = extended_wait_time
+        self.retracted_wait_time = retracted_wait_time
         self.state = "waiting_retracted"
         self.state_timer = 0.0
         self.phase = 0.0
