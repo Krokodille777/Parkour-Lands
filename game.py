@@ -2,9 +2,10 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player, Fan, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint, FragileGround, ElevatorUpDown, ElevatorLeftRight, Ice, StartPortal, EndPortal, DynamicSpike
-from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock, AlterCreator, AlterPlayer, AlterRemover, PressTrap, SwingingVine
+from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock,  AlterPlayer,  PressTrap, SwingingVine, GravityJumpPad
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder, squash_adjustment
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
+from physics import apply_agt, agt_move_and_collide
 from maincamera import follow_player
 from checkpoint import checkpoint_activation
 from fragile_ground import fragile_ground_check, respawn_fragile_ground
@@ -24,13 +25,16 @@ clock = pygame.time.Clock()
 player = Player(60, 250, 50, 50)
 # Create sprite instances
 ground = Ground(0, 700, 400, 900)
+jumpPad = JumpPad(100, 675, 50, 25, launch_vel = -1200)
+gravityJumpPad = GravityJumpPad(300, 675, 50, 25, launch_vel = -1000)
+gravityJumpPad2 = GravityJumpPad(250, 520, 50, 25, launch_vel = -1000)
+island1 = Ground(200, 500, 200, 20)
 
-press_trap1 = PressTrap(250, 525, 150, 75, 180)
 
 
 # Colliders list (everything the player can collide with)
-colliders = [ground]  # Add all solid objects here
-triggers = [press_trap1]   # Objects that trigger special interactions (like climbing or damage)
+colliders = [ground, island1, jumpPad, gravityJumpPad, gravityJumpPad2]  # Add all solid objects here
+triggers = []   # Objects that trigger special interactions (like climbing or damage)
 dynamic_colliders = []  # Moving solids like elevators go here
 boxes = []
 buttons = []
@@ -54,7 +58,7 @@ fans = []
 # Create sprite groups
 all_sprites = pygame.sprite.LayeredUpdates()
 all_sprites.add(ground, layer = 1)
-# all_sprites.add(island1, layer = 0)
+all_sprites.add(island1, layer = 0)
 # # all_sprites.add(ground_under_ice, layer = 0)
 # all_sprites.add(test_block, layer = 0)
 # all_sprites.add(test_block2, layer = 1)
@@ -106,12 +110,14 @@ all_sprites.add(ground, layer = 1)
 # all_sprites.add(spike_up6, layer = 1)
 # all_sprites.add(spike_up7, layer = 1)
 # all_sprites.add(spike_up8, layer = 1)
-# all_sprites.add(jump_Pad, layer = 1)
+all_sprites.add(jumpPad, layer = 1)
+all_sprites.add(gravityJumpPad, layer = 1)
+all_sprites.add(gravityJumpPad2, layer = 1)
 # all_sprites.add(accelerator_block, layer = 0)
 # # all_sprites.add(decelerator_block, layer = 0)
 # all_sprites.add(checkpoint1, layer = 0)
 # all_sprites.add(ice_plate, layer = 0)
-all_sprites.add(press_trap1, layer = 1)
+# all_sprites.add(press_trap1, layer = 1)
 all_sprites.add(player, layer = 2)
 # all_sprites.add(test_wall1, layer = 0)
 # all_sprites.add(test_wall2, layer = 0)
@@ -135,7 +141,7 @@ while running:
             leftright_elevator_movement(elevator, elevator.range, dt)
         elevator.delta_x = elevator.rect.x - prev_x
         elevator.delta_y = elevator.rect.y - prev_y
-    update_press_trap(press_trap1, dt)
+    # update_press_trap(press_trap1, dt)
     for dspike in dspikes:
         dynamic_spike_movement_based_on_timer(dspike, dt)
     # If the player was standing on a moving elevator last frame, carry them along with it
@@ -157,10 +163,14 @@ while running:
         for portal in portals:
             teleport_pushable_block(b, portal)
     # apply_speed_zones(player, speed_zones)
-    apply_gravity(player, dt)
     for fan in fans:
         apply_fan_effect(player, fan, dt)
-    move_and_collide(player, colliders, dt, triggers)
+    if player.gravity_direction == "up":
+        apply_agt(player, dt)
+        agt_move_and_collide(player, colliders, dt, triggers)
+    else:
+        apply_gravity(player, dt)
+        move_and_collide(player, colliders, dt, triggers)
    
    
 
@@ -177,6 +187,7 @@ while running:
     link_button_to_door(buttons, doors)
     link_button_to_trapdoor(buttons, trapdoors)
     open_door_trapdoor(doors, trapdoors)
+
     checkpoint_activation(player, checkpoint_group)
     # fragile_ground_check(player, fragile_grounds, colliders, dt)
     respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)

@@ -46,6 +46,7 @@ class Player (pygame.sprite.Sprite):
         self.on_ice = False
         self.ice = None
         self.portal_lock = None
+        self.gravity_direction = "down"
 
     def handle_input(self, dt=1/60):
         keys = pygame.key.get_pressed()
@@ -79,11 +80,14 @@ class Player (pygame.sprite.Sprite):
 
         # Jumping
         if (keys[K_SPACE] or keys[K_UP] or keys[K_w]) and self.on_ground:
-            self.vel.y = self.JUMP_VEL
-            self.on_ground = False
+            if self.gravity_direction == "up":
+                self.vel.y = -self.JUMP_VEL
+            else:
+                self.vel.y = self.JUMP_VEL
+            
 
         # Crouching
-        bottom = self.rect.bottom
+        anchor_y = self.rect.bottom if self.gravity_direction == "down" else self.rect.top
         if keys[K_c]:
                 self.crouching = True
                 self.image = pygame.Surface((self.full_width, self.full_height // 2))
@@ -107,10 +111,14 @@ class Player (pygame.sprite.Sprite):
             self.pos = pygame.math.Vector2(60, 250)
             self.rect.topleft = self.pos
             self.vel = pygame.math.Vector2(0, 0)
+            self.gravity_direction = "down"
             
            
 
-        self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), bottom))
+        if self.gravity_direction == "down":
+            self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), anchor_y))
+        else:
+            self.rect = self.image.get_rect(topleft = (round(self.pos.x), anchor_y))
         self.pos.y = float(self.rect.y)
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -120,6 +128,7 @@ class JumpPad (pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, launch_vel):
         super().__init__()
         self.image = pygame.Surface((width, height))
+        self.image.fill((255, 255, 0))  # Yellow
         self.rect = self.image.get_rect(topleft = (x, y))
         self.type = 'jumppad' # Type identifier for jump pad objects
         self.launch_vel = launch_vel
@@ -502,31 +511,27 @@ class SwingingVine(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'swinging_vine' # Type identifier for swinging vine objects
 
-class AlterCreator(pygame.sprite.Sprite):
+class AlterStand(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
         self.image = pygame.Surface((width, height))
-        self.image.fill((255, 20, 147))  # Deep pink color for alter creator
+        self.image.fill((255, 20, 147))  # Deep pink color for alter stand
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
-        self.type = 'alter_creator' # Type identifier for alter creator objects
+        self.type = 'alter_stand' # Type identifier for alter stand objects
 
-class AlterRemover(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+# Gravity Jump Pad is a version of class jump pad, which switches the player's gravity, while launched.
+
+class GravityJumpPad(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, launch_vel):
         super().__init__()
         self.image = pygame.Surface((width, height))
-        self.image.fill((255, 105, 180))  # Hot pink color for alter remover
+        self.image.fill((255, 0, 255))  # Magenta color for gravity jump pad
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
-        self.type = 'alter_remover' # Type identifier for alter remover objects
+        self.type = 'gravity_jump_pad' # Type identifier for gravity jump pad objects
+        self.launch_vel = launch_vel
 
-#Alterplayer is a special type of player which can be created and removed by alter creator and alter remover.
-# Alter player can serve as a temporary helper you can take control of to reach certain places. 
-# Alter player has the same physics as normal player, but different color and type identifier, so we can add different physics if needed in the future.
-# To take control of alter player, player needs to press "2" key. It will automatically freeze the original player and move it to the older player's posittion.
-# Alter players may be very useful during puzzle-solving parts.
-# I don't know how I am going to implement this yet, It will be so interesting if it finally works. 
-        
 class AlterPlayer(Player):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height)
@@ -534,8 +539,11 @@ class AlterPlayer(Player):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'alter_player' # Type identifier for alter player objects
 
-
-
+#Mr. Jekyll and Mr. Hyde. Alter player is a clone of the normal player, but with different color
+#and type indentifier. Both players have the same physics.
+# Mr.Hyde always spawns on the alter stand.
+#You can switch players by pressing "1" for normal, player amd "2" for alter player.
+#Important Rule!! When playing as one character, the other character is frozen in place and becomes a solid object and you can't use it, until you switch back to it.
 
 class FinishLevelTrigger(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
