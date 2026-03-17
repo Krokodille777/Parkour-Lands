@@ -27,8 +27,9 @@ class Player (pygame.sprite.Sprite):
 
     def __init__(self, x, y, width, height):
         super().__init__()
+        self.color = (0, 0, 255)
         self.image = pygame.Surface((width, height))
-        self.image.fill((0, 0, 255))
+        self.image.fill(self.color)
         self.rect = self.image.get_rect(topleft = (x, y))
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.vel = pygame.math.Vector2(0, 0)
@@ -45,10 +46,25 @@ class Player (pygame.sprite.Sprite):
         self.ground = None
         self.on_ice = False
         self.ice = None
+        self.frozen = False
         self.portal_lock = None
         self.gravity_direction = "down"
 
+    def _apply_body_size(self, width, height, anchor_y):
+        self.image = pygame.Surface((width, height))
+        self.image.fill(self.color)
+        if self.gravity_direction == "down":
+            self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), anchor_y))
+        else:
+            self.rect = self.image.get_rect(topleft = (round(self.pos.x), anchor_y))
+        self.pos.y = float(self.rect.y)
+        self.mask = pygame.mask.from_surface(self.image)
+
     def handle_input(self, dt=1/60):
+        if self.frozen:
+            self.vel = pygame.math.Vector2(0, 0)
+            return
+
         keys = pygame.key.get_pressed()
 
         # Determine desired direction
@@ -84,43 +100,23 @@ class Player (pygame.sprite.Sprite):
                 self.vel.y = -self.JUMP_VEL
             else:
                 self.vel.y = self.JUMP_VEL
-            
-
-        # Crouching
-        anchor_y = self.rect.bottom if self.gravity_direction == "down" else self.rect.top
-        if keys[K_c]:
-                self.crouching = True
-                self.image = pygame.Surface((self.full_width, self.full_height // 2))
-                self.image.fill((0, 0, 255))
-        elif not self.crouching:
-                self.image = pygame.Surface((self.full_width, self.full_height))
-                self.image.fill((0, 0, 255))
-       
-
-        if keys[K_v]:
-            self.squashed = True
-
-            self.image = pygame.Surface((self.full_width // 2, self.full_height))
-            self.image.fill((0, 0, 255))
-        elif not self.crouching:
-            self.image = pygame.Surface((self.full_width, self.full_height))
-            self.image.fill((0, 0, 255))
 
 
         if keys[K_x]:
-            self.pos = pygame.math.Vector2(60, 250)
-            self.rect.topleft = self.pos
+            self.pos = pygame.math.Vector2(self.spawn_point)
+            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
             self.vel = pygame.math.Vector2(0, 0)
             self.gravity_direction = "down"
-            
-           
 
-        if self.gravity_direction == "down":
-            self.rect = self.image.get_rect(bottomleft = (round(self.pos.x), anchor_y))
-        else:
-            self.rect = self.image.get_rect(topleft = (round(self.pos.x), anchor_y))
-        self.pos.y = float(self.rect.y)
-        self.mask = pygame.mask.from_surface(self.image)
+        if keys[K_c]:
+            self.crouching = True
+        if keys[K_v]:
+            self.squashed = True
+
+        anchor_y = self.rect.bottom if self.gravity_direction == "down" else self.rect.top
+        target_width = self.full_width // 2 if self.squashed else self.full_width
+        target_height = self.full_height // 2 if self.crouching else self.full_height
+        self._apply_body_size(target_width, target_height, anchor_y)
 
 
 
@@ -535,9 +531,14 @@ class GravityJumpPad(pygame.sprite.Sprite):
 class AlterPlayer(Player):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height)
-        self.image.fill((255, 20, 147))  # Deep pink color for alter player
-        self.mask = pygame.mask.from_surface(self.image)
+        self.color = (255, 20, 147)
+        anchor_y = self.rect.bottom if self.gravity_direction == "down" else self.rect.top
+        self._apply_body_size(self.full_width, self.full_height, anchor_y)
         self.type = 'alter_player' # Type identifier for alter player objects
+        self.frozen = True # Alter player starts frozen until the player switches to it for the first time
+
+    def handle_input(self, dt=1/60):
+        super().handle_input(dt)
 
 #Mr. Jekyll and Mr. Hyde. Alter player is a clone of the normal player, but with different color
 #and type indentifier. Both players have the same physics.
@@ -559,5 +560,3 @@ DECELERATION_SPEED = 600
 
 def retrieve_speeds(_type: str):
     return ACCELERATION_SPEED, DECELERATION_SPEED
-
-

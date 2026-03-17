@@ -8,15 +8,34 @@ from physics import apply_gravity, move_and_collide
 
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
 PUSH_TOLERANCE = 4
+HEAD_SUPPORT_TOLERANCE = 3
+MIN_HEAD_OVERLAP = 10
 
 
 def _vertical_overlap(rect_a, rect_b):
     return rect_a.bottom > rect_b.top + 4 and rect_a.top < rect_b.bottom - 4
 
 
+def _horizontal_overlap(rect_a, rect_b):
+    return max(0, min(rect_a.right, rect_b.right) - max(rect_a.left, rect_b.left))
+
+
+def _is_resting_on_head(player, block):
+    if getattr(player, "gravity_direction", "down") != "down":
+        return False
+
+    touching_head = abs(block.rect.bottom - player.rect.top) <= HEAD_SUPPORT_TOLERANCE
+    overlap = _horizontal_overlap(player.rect, block.rect)
+    return touching_head and overlap >= MIN_HEAD_OVERLAP
+
+
 def push_the_block(player, block, dt):
     pushing = False
     player_next_rect = player.rect.move(round(player.vel.x * dt), 0)
+
+    if block.on_ground and block.ground is player and _is_resting_on_head(player, block):
+        block.vel.x = player.vel.x
+        return
 
     if _vertical_overlap(player.rect, block.rect):
         moving_into_left_side = (
@@ -87,5 +106,4 @@ def on_ice(block, colliders):
 
 def use_jumppad(block, colliders):
     return getattr(block.ground, "type", None) == "jumppad"
-
 

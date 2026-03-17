@@ -16,9 +16,17 @@ def _iter_blocks(blocks):
     return [block for block in blocks if hasattr(block, "rect")]
 
 
-def press_button(player, blocks, buttons):
+def _iter_actors(actors):
+    if actors is None:
+        return []
+    if hasattr(actors, "rect"):
+        return [actors]
+    return [actor for actor in actors if hasattr(actor, "rect")]
+
+
+def press_button(players, blocks, buttons):
     for button in buttons:
-        player_pressing = player.rect.colliderect(button.rect)
+        player_pressing = any(actor.rect.colliderect(button.rect) for actor in _iter_actors(players))
         block_pressing = any(block.rect.colliderect(button.rect) for block in _iter_blocks(blocks))
         button.set_pressed(player_pressing or block_pressing)
 

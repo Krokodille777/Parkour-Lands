@@ -2,10 +2,10 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player, Fan, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint, FragileGround, ElevatorUpDown, ElevatorLeftRight, Ice, StartPortal, EndPortal, DynamicSpike
-from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock,  AlterPlayer,  PressTrap, SwingingVine, GravityJumpPad
+from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock,  AlterPlayer, AlterStand,  PressTrap, SwingingVine, GravityJumpPad
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder, squash_adjustment
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
-from physics import apply_agt, agt_move_and_collide
+from physics import apply_agt, agt_move_and_collide, switch_to_alter_player, switch_to_normal_player
 from maincamera import follow_player
 from checkpoint import checkpoint_activation
 from fragile_ground import fragile_ground_check, respawn_fragile_ground
@@ -20,20 +20,20 @@ pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption("Platformer")
+WORLD_WIDTH = 2000
+WORLD_HEIGHT = 1500
 
 clock = pygame.time.Clock()
 player = Player(60, 250, 50, 50)
 # Create sprite instances
 ground = Ground(0, 700, 400, 900)
-jumpPad = JumpPad(100, 675, 50, 25, launch_vel = -1200)
-gravityJumpPad = GravityJumpPad(300, 675, 50, 25, launch_vel = -1000)
-gravityJumpPad2 = GravityJumpPad(250, 520, 50, 25, launch_vel = -1000)
-island1 = Ground(200, 500, 200, 20)
 
+alter_stand = AlterStand(300, 250, 65, 25)
+hyde = AlterPlayer(300, 225, 50, 50)
 
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, island1, jumpPad, gravityJumpPad, gravityJumpPad2]  # Add all solid objects here
+colliders = [ground, alter_stand, player, hyde]  # Frozen characters stay solid and can help with puzzles
 triggers = []   # Objects that trigger special interactions (like climbing or damage)
 dynamic_colliders = []  # Moving solids like elevators go here
 boxes = []
@@ -58,7 +58,7 @@ fans = []
 # Create sprite groups
 all_sprites = pygame.sprite.LayeredUpdates()
 all_sprites.add(ground, layer = 1)
-all_sprites.add(island1, layer = 0)
+# all_sprites.add(island1, layer = 0)
 # # all_sprites.add(ground_under_ice, layer = 0)
 # all_sprites.add(test_block, layer = 0)
 # all_sprites.add(test_block2, layer = 1)
@@ -110,15 +110,17 @@ all_sprites.add(island1, layer = 0)
 # all_sprites.add(spike_up6, layer = 1)
 # all_sprites.add(spike_up7, layer = 1)
 # all_sprites.add(spike_up8, layer = 1)
-all_sprites.add(jumpPad, layer = 1)
-all_sprites.add(gravityJumpPad, layer = 1)
-all_sprites.add(gravityJumpPad2, layer = 1)
+# all_sprites.add(jumpPad, layer = 1)
+# all_sprites.add(gravityJumpPad, layer = 1)
+# all_sprites.add(gravityJumpPad2, layer = 1)
 # all_sprites.add(accelerator_block, layer = 0)
 # # all_sprites.add(decelerator_block, layer = 0)
 # all_sprites.add(checkpoint1, layer = 0)
 # all_sprites.add(ice_plate, layer = 0)
 # all_sprites.add(press_trap1, layer = 1)
 all_sprites.add(player, layer = 2)
+all_sprites.add(alter_stand, layer = 1)
+all_sprites.add(hyde, layer = 2)
 # all_sprites.add(test_wall1, layer = 0)
 # all_sprites.add(test_wall2, layer = 0)
 # # all_sprites.add(elevatorupDown1, layer = 0)
@@ -131,6 +133,13 @@ while running:
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
+        elif event.type == KEYDOWN:
+            if event.key == K_1:
+                switch_to_normal_player(player, hyde)
+            elif event.key == K_2:
+                switch_to_alter_player(player, hyde)
+
+    active_player = hyde if not hyde.frozen else player
       
     # Move elevators before resolving player collisions so the player can ride them naturally
     for elevator in dynamic_colliders:
@@ -145,50 +154,52 @@ while running:
     for dspike in dspikes:
         dynamic_spike_movement_based_on_timer(dspike, dt)
     # If the player was standing on a moving elevator last frame, carry them along with it
-    if player.on_ground and player.ground in dynamic_colliders:
-        player.pos.x += player.ground.delta_x
-        player.pos.y += player.ground.delta_y
-        player.rect.x = round(player.pos.x)
-        player.rect.y = round(player.pos.y)
+    if active_player.on_ground and active_player.ground is not None:
+        active_player.pos.x += getattr(active_player.ground, "delta_x", 0)
+        active_player.pos.y += getattr(active_player.ground, "delta_y", 0)
+        active_player.rect.x = round(active_player.pos.x)
+        active_player.rect.y = round(active_player.pos.y)
     
+    actor_colliders = colliders + boxes
+   
    
     # Player input & physics
-    player.handle_input(dt)
+    active_player.handle_input(dt)
     for b in boxes:
-        push_the_block(player, b, dt)
+        push_the_block(active_player, b, dt)
         for fan in fans:
             apply_fan_effect_to_block(b, fan, dt)
-        block_collisions(b, colliders, dt, triggers)
+        block_collisions(b, actor_colliders, dt, triggers)
         triggers_check(b, triggers)
         for portal in portals:
             teleport_pushable_block(b, portal)
     # apply_speed_zones(player, speed_zones)
     for fan in fans:
-        apply_fan_effect(player, fan, dt)
-    if player.gravity_direction == "up":
-        apply_agt(player, dt)
-        agt_move_and_collide(player, colliders, dt, triggers)
+        apply_fan_effect(active_player, fan, dt)
+    if active_player.gravity_direction == "up":
+        apply_agt(active_player, dt)
+        agt_move_and_collide(active_player, actor_colliders, dt, triggers)
     else:
-        apply_gravity(player, dt)
-        move_and_collide(player, colliders, dt, triggers)
+        apply_gravity(active_player, dt)
+        move_and_collide(active_player, actor_colliders, dt, triggers)
    
    
 
     for portal in portals:
-        teleport_player(player, portal)
+        teleport_player(active_player, portal)
     for portal in portals:
         cooldown_timer(portal, dt)
-    crouching_adjustment(player, colliders)
-    squash_adjustment(player, colliders)
-    climb_ladder(player, triggers)
-    jump_from_the_top_of_ladder(player, triggers)
-    buoyant_force(player, triggers) 
-    press_button(player, boxes, buttons)
+    crouching_adjustment(active_player, actor_colliders)
+    squash_adjustment(active_player, actor_colliders)
+    climb_ladder(active_player, triggers)
+    jump_from_the_top_of_ladder(active_player, triggers)
+    buoyant_force(active_player, triggers) 
+    press_button((player, hyde), boxes, buttons)
     link_button_to_door(buttons, doors)
     link_button_to_trapdoor(buttons, trapdoors)
     open_door_trapdoor(doors, trapdoors)
 
-    checkpoint_activation(player, checkpoint_group)
+    checkpoint_activation(active_player, checkpoint_group)
     # fragile_ground_check(player, fragile_grounds, colliders, dt)
     respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)
     
@@ -196,11 +207,14 @@ while running:
     # Press X to reset the level. It my happen if the player gets stuck or a valuable item gets lost in an unreachable place, so it's good to have a quick way to reset the level without closing the game.
     # it also relates to pushable blocks, as they can get pushed into unreachable places and cause softlocks, so being able to reset the level without closing the game is very helpful for testing and gameplay.
     
-
-
-
-
-    offset_x, offset_y = follow_player(player, screen.get_width(), 2000, screen.get_height(), 1500)  # Assuming world width is 2000px and height is 1000px
+    
+    offset_x, offset_y = follow_player(
+        active_player,
+        screen.get_width(),
+        WORLD_WIDTH,
+        screen.get_height(),
+        WORLD_HEIGHT,
+    )
     #Sky color
     screen.fill((119, 164, 237))
     for sprite in all_sprites:

@@ -371,3 +371,39 @@ def agt_move_and_collide(player, colliders, dt: float, triggers):
         player.gravity_direction = "down"
         return
     
+def frozen_adjustment(player, colliders):
+    if not player.frozen:
+        return
+
+    player.vel = pygame.math.Vector2(0, 0)
+    player.pos = pygame.math.Vector2(player.rect.topleft)
+    player.on_ground = False
+    player.ground = None
+    player.on_ice = False
+
+
+def switch_to_alter_player(player, alter_player):
+    if player.frozen or not alter_player.frozen:
+        return False  # Hyde is already active or the state is inconsistent.
+
+    player.frozen = True
+    alter_player.frozen = False
+    frozen_adjustment(player, [])
+    alter_player.vel = pygame.math.Vector2(0, 0)
+    alter_player.on_ground = False
+    alter_player.ground = None
+    alter_player.on_ice = False
+    return True
+
+def switch_to_normal_player(player, alter_player):
+    if alter_player.frozen or not player.frozen:
+        return False  # Jekyll is already active or the state is inconsistent.
+
+    alter_player.frozen = True
+    player.frozen = False
+    frozen_adjustment(alter_player, [])
+    player.vel = pygame.math.Vector2(0, 0)
+    player.on_ground = False
+    player.ground = None
+    player.on_ice = False
+    return True
