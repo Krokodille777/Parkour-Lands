@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from sprites import Ground, Player, Fan, JumpPad, Lava, Spike, Bridge, Water, Ladder, Accelerator, Decelerator, Checkpoint, FragileGround, ElevatorUpDown, ElevatorLeftRight, Ice, StartPortal, EndPortal, DynamicSpike
-from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock,  AlterPlayer, AlterStand,  PressTrap, SwingingVine, GravityJumpPad
+from sprites import DynamicSpikePlatform, Door, TrapDoor, Button, PushableBlock,  AlterPlayer, AlterStand,  PressTrap, FinishLevelTrigger, GravityJumpPad
 from physics import apply_gravity, move_and_collide,  crouching_adjustment, climb_ladder, squash_adjustment
 from physics import jump_from_the_top_of_ladder, buoyant_force, apply_speed_zones
 from physics import apply_agt, agt_move_and_collide, switch_to_alter_player, switch_to_normal_player
@@ -16,6 +16,7 @@ from fans import apply_fan_effect, apply_fan_effect_to_block
 from pushableBlock import push_the_block, triggers_check, block_collisions
 from button_door_trap import press_button, link_button_to_door, link_button_to_trapdoor, open_door_trapdoor
 from press_trap import update_press_trap
+from finish import level_complete, display_level_complete_message
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -26,15 +27,15 @@ WORLD_HEIGHT = 1500
 clock = pygame.time.Clock()
 player = Player(60, 250, 50, 50)
 # Create sprite instances
-ground = Ground(0, 700, 400, 900)
+ground = Ground(0, 700, 700, 900)
 
-alter_stand = AlterStand(300, 250, 65, 25)
-hyde = AlterPlayer(300, 225, 50, 50)
+finish_flag = FinishLevelTrigger(375, 650, 15, 65)
+
 
 
 # Colliders list (everything the player can collide with)
-colliders = [ground, alter_stand, player, hyde]  # Frozen characters stay solid and can help with puzzles
-triggers = []   # Objects that trigger special interactions (like climbing or damage)
+colliders = [ground, player]  # Frozen characters stay solid and can help with puzzles
+triggers = [finish_flag]   # Objects that trigger special interactions (like climbing or damage)
 dynamic_colliders = []  # Moving solids like elevators go here
 boxes = []
 buttons = []
@@ -119,8 +120,9 @@ all_sprites.add(ground, layer = 1)
 # all_sprites.add(ice_plate, layer = 0)
 # all_sprites.add(press_trap1, layer = 1)
 all_sprites.add(player, layer = 2)
-all_sprites.add(alter_stand, layer = 1)
-all_sprites.add(hyde, layer = 2)
+all_sprites.add(finish_flag, layer = 1)
+# all_sprites.add(alter_stand, layer = 1)
+# all_sprites.add(hyde, layer = 2)
 # all_sprites.add(test_wall1, layer = 0)
 # all_sprites.add(test_wall2, layer = 0)
 # # all_sprites.add(elevatorupDown1, layer = 0)
@@ -133,13 +135,13 @@ while running:
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
-        elif event.type == KEYDOWN:
-            if event.key == K_1:
-                switch_to_normal_player(player, hyde)
-            elif event.key == K_2:
-                switch_to_alter_player(player, hyde)
+        # elif event.type == KEYDOWN:
+        #     if event.key == K_1:
+        #         switch_to_normal_player(player, hyde)
+        #     elif event.key == K_2:
+        #         switch_to_alter_player(player, hyde)
 
-    active_player = hyde if not hyde.frozen else player
+    active_player = player
       
     # Move elevators before resolving player collisions so the player can ride them naturally
     for elevator in dynamic_colliders:
@@ -194,7 +196,7 @@ while running:
     climb_ladder(active_player, triggers)
     jump_from_the_top_of_ladder(active_player, triggers)
     buoyant_force(active_player, triggers) 
-    press_button((player, hyde), boxes, buttons)
+    press_button(active_player, boxes, buttons)
     link_button_to_door(buttons, doors)
     link_button_to_trapdoor(buttons, trapdoors)
     open_door_trapdoor(doors, trapdoors)
@@ -202,6 +204,9 @@ while running:
     checkpoint_activation(active_player, checkpoint_group)
     # fragile_ground_check(player, fragile_grounds, colliders, dt)
     respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt)
+    
+    level_complete(player, finish_flag)
+    display_level_complete_message(screen, pygame.font.SysFont(None, 48))
     
 
     # Press X to reset the level. It my happen if the player gets stuck or a valuable item gets lost in an unreachable place, so it's good to have a quick way to reset the level without closing the game.
