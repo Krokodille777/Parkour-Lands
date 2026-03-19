@@ -545,6 +545,24 @@ class FinishLevelTrigger(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'finish_level_trigger' # Type identifier for finish level trigger objects
 
+#Tip cloud is a sprite that shows tips to the player when they meet new mechanics for the first time
+
+ class TipCloud(pygame.sprite.Sprite):
+      def __init__(self, x, y, width, height, text):
+          super().__init__()
+          self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+          self.image.fill((255, 255, 224, 200))
+          self.rect = self.image.get_rect(topleft=(x, y))
+          self.type = "tip_cloud"
+
+          font = pygame.font.SysFont(None, 24)
+          lines = text.split("\n")
+          y_offset = 10
+          for line in lines:
+              text_surface = font.render(line, True, (20, 20, 20))
+              self.image.blit(text_surface, (10, y_offset))
+              y_offset +=24
+
 ACCELERATION_SPEED = 400
 DECELERATION_SPEED = 600
 
