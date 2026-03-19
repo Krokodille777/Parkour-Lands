@@ -4,7 +4,6 @@ import pygame
 from pygame.locals import *
 from sprites import Player, Ground, TipCloud, FinishLevelTrigger, Lava
 from physics import apply_gravity, move_and_collide
-from finish import level_complete
 from maincamera import follow_player
 
 
@@ -18,10 +17,10 @@ class Level2:
         self.ground1 = Ground(0, 750, 300, 500)
         self.lava_pool1 = Lava(300, 900, 150, 500)
         self.island1 = Ground(450, 700, 150, 550)
-        self.tip_cloud1 = TipCloud(450, 600, 200, 100, "Watch out for the lava!\n Press Space/W/Up to Jump")
+        self.tip_cloud1 = TipCloud(450, 600, 200, 100, "Press Space/W/Up to Jump")
         self.lava_pool2 = Lava(600, 900, 150, 500)
         self.ground2 = Ground(750, 750, 300, 500)
-        self.finish_level_trigger = FinishLevelTrigger(1800, 650, 200, 100)
+        self.finish_level_trigger = FinishLevelTrigger(950, 650, 50, 100)
 
 
         self.triggers = pygame.sprite.Group()
@@ -42,7 +41,7 @@ class Level2:
 
     def update(self, dt):
         apply_gravity(self.player, dt)
-        move_and_collide(self.player, self.triggers, self.colliders, dt)
+        move_and_collide(self.player, self.colliders, dt , self.triggers)
         self.player.handle_input()
     def draw(self, screen):
         offset_x, offset_y = follow_player(

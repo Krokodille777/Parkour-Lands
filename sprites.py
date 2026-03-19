@@ -208,24 +208,6 @@ class Ladder (pygame.sprite.Sprite):
         self.type = 'ladder' # Type identifier for ladder objects
 
 
-class Accelerator(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
-        super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((255, 255, 0))  # Yellow color for accelerator
-        self.rect = self.image.get_rect(topleft = (x ,y))
-        self.mask = pygame.mask.from_surface(self.image)
-        self.type = 'accelerator'
-
-class Decelerator(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
-        super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((128, 128, 128))  # Gray color for decelerator
-        self.rect = self.image.get_rect(topleft = (x ,y))
-        self.mask = pygame.mask.from_surface(self.image)
-        self.type = 'decelerator'
-
 class Checkpoint(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
@@ -547,7 +529,7 @@ class FinishLevelTrigger(pygame.sprite.Sprite):
 
 #Tip cloud is a sprite that shows tips to the player when they meet new mechanics for the first time
 
- class TipCloud(pygame.sprite.Sprite):
+class TipCloud(pygame.sprite.Sprite):
       def __init__(self, x, y, width, height, text):
           super().__init__()
           self.image = pygame.Surface((width, height), pygame.SRCALPHA)

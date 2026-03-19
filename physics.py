@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 from sprites import Player
 
-GRAVITY = 1500
+GRAVITY = 1800
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
 
 
@@ -24,6 +24,7 @@ def move_and_collide(player, colliders, dt: float, triggers):
     player.ground = None
 
     # --- Horizontal pass ---
+
     player.pos.x += player.vel.x * dt
     player.rect.x = round(player.pos.x)
 
