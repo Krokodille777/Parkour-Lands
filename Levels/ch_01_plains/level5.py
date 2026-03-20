@@ -1,12 +1,12 @@
-# Level 3 of Chapter 1 - Plains : Lava
+# Level 5 of Chapter 1 - Plains : Ice and Squash
 import pygame
 from pygame.locals import *
-from sprites import Player, Ground, TipCloud, FinishLevelTrigger, Lava
+from sprites import Player, Ground, TipCloud, FinishLevelTrigger, Lava, Bridge, JumpPad, Ice
 from physics import apply_gravity, move_and_collide, crouching_adjustment, squash_adjustment
 from maincamera import follow_player
 
 
-class Level3:
+class Level5:
 
     def __init__(self):
         self.WORLD_WIDTH = 2000
@@ -14,30 +14,42 @@ class Level3:
         self.all_sprites = pygame.sprite.LayeredUpdates()
         
         self.player = Player(60, 250, 50, 50)
-        self.ground = Ground(0, 750, 325, 500)
-        self.stair1 = Ground(100, 700, 225, 50)
-        self.stair2 = Ground(150, 650, 175, 50)
-        self.stair3 = Ground(200, 600, 125, 50)
-        self.lava_pool = Lava(325, 800, 2000, 500)
-        self. platform1 = Ground(345, 625, 100, 50)
-        self.platform2 = Ground(655, 625, 100, 50)
+        self.ground = Ground(0, 750, 125, 500)
+        self.ice = Ice(125, 750, 250, 500)
+        self.island = Ground(375, 750, 175, 500)
+        self.jump_pad = JumpPad(462.5, 725, 50, 25, -1800)
+        self.lava_pool = Lava(550, 800, 2000, 500)
 
-        self.tip_cloud = TipCloud(355, 300, 200, 50, "Watch out for the lava!")
+        self. platform1 = Ground(380, 450, 75, 75)
+        self.bridge1 = Bridge(280, 450, 100, 25)
+        self.ice2 = Ice(180, 450, 100, 75)
+        self.wall1 = Ground(130, 0, 50, 500)
 
-        self.finish_flag = FinishLevelTrigger(700, 525, 50, 100)
+        self.platform2 = Ground(500, 450, 75, 75)
+        self.platform3 = Ground(650, 425, 75, 75)
+        self.platform4 = Ground(800, 400, 125, 75)
+
+        self.tip_cloud = TipCloud(250, 300, 225, 50, "Press V to squash yourself \n and fit through narrow spaces. \n And then press V again to \n return to normal size!")
+
+        self.finish_flag = FinishLevelTrigger(862.5, 300, 50, 100)
 
         self.triggers = pygame.sprite.Group()
         self.triggers.add(self.finish_flag)
         self.colliders = pygame.sprite.Group()
-        self.colliders.add(self.ground, self.stair1, self.stair2, self.stair3, self.lava_pool, self.platform1, self.platform2)
+        self.colliders.add(self.ground, self.ice, self.island, self.jump_pad, self.lava_pool, self.platform1, self.platform2, self.bridge1, self.ice2, self.wall1, self.platform3, self.platform4)
 
         self.all_sprites.add(self.ground, layer = 0)
-        self.all_sprites.add(self.stair1, layer = 0)
-        self.all_sprites.add(self.stair2, layer = 0)
-        self.all_sprites.add(self.stair3, layer = 0)
+        self.all_sprites.add(self.ice, layer = 0)
+        self.all_sprites.add(self.island, layer = 0)
+        self.all_sprites.add(self.jump_pad, layer = 0)
         self.all_sprites.add(self.lava_pool, layer = 0)
         self.all_sprites.add(self.platform1, layer = 0)
         self.all_sprites.add(self.platform2, layer = 0)
+        self.all_sprites.add(self.bridge1, layer = 0)
+        self.all_sprites.add(self.ice2, layer = 0)
+        self.all_sprites.add(self.wall1, layer = 0)
+        self.all_sprites.add(self.platform3, layer = 0)
+        self.all_sprites.add(self.platform4, layer = 0)
         self.all_sprites.add(self.tip_cloud, layer = 1)
         self.all_sprites.add(self.finish_flag, layer = 1)
         self.all_sprites.add(self.player, layer = 2)

@@ -1,4 +1,4 @@
-#Building levels, according to rrr.png
+# Level 2 of Chapter 1 - Jumping
 
 import pygame
 from pygame.locals import *

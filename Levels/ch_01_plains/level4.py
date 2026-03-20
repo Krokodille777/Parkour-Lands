@@ -1,3 +1,4 @@
+# Level 4 of Chapter 1 - Plains : Jump Pads
 import pygame
 from pygame.locals import *
 from sprites import Player, Ground, TipCloud, FinishLevelTrigger, Lava, Bridge, JumpPad

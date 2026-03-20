@@ -1,3 +1,4 @@
+# Level 1 of Chapter 1 - Plains : Basic Movement
 import pygame
 from pygame.locals import *
 from sprites import Player, Ground, TipCloud, FinishLevelTrigger
