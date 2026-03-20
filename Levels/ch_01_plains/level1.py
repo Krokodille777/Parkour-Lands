@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from sprites import Player, Ground, TipCloud, FinishLevelTrigger
-from physics import apply_gravity, move_and_collide
+from physics import apply_gravity, move_and_collide, crouching_adjustment, squash_adjustment
 
 from maincamera import follow_player
 
@@ -12,9 +12,9 @@ class Level1:
         self.bg_color = (119, 164, 237)
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.player = Player(60, 250, 50, 50)
-        self.ground = Ground(0, 750, 2000, 500)
-        self.tip_cloud = TipCloud(300, 600, 200, 100, "Welcome to Parkour Lands! \n A/D or arrows to move")
-        self.finish_level_trigger = FinishLevelTrigger(1800, 650, 50, 100)
+        self.ground = Ground(0, 750, 1000, 500)
+        self.tip_cloud = TipCloud(300, 450, 200, 100, "Welcome to \n Parkour Lands! \n A/D or arrows to move")
+        self.finish_level_trigger = FinishLevelTrigger(900, 650, 50, 100)
 
 
         self.triggers = pygame.sprite.Group()
@@ -33,6 +33,8 @@ class Level1:
         self.player.handle_input()
         apply_gravity(self.player, dt)
         move_and_collide(self.player, self.colliders, dt, self.triggers)
+        crouching_adjustment(self.player, self.colliders)
+        squash_adjustment(self.player, self.colliders)
     def draw(self, screen):
         offset_x, offset_y = follow_player(
             self.player,

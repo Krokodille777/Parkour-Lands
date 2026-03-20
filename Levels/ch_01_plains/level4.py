@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from sprites import Player, Ground, TipCloud, FinishLevelTrigger, Lava, Bridge, JumpPad
-from physics import apply_gravity, move_and_collide
+from physics import apply_gravity, move_and_collide, crouching_adjustment, squash_adjustment
 from maincamera import follow_player
 
 class Level4:
@@ -12,21 +12,21 @@ class Level4:
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.player = Player(60, 250, 50, 50)
         self.ground1 = Ground(0, 750, 300, 500)
-        self.lava_pool1 = Lava(300, 850, 100, 500)
+        self.lava_pool1 = Lava(300, 850, 150, 500)
         self.island1 = Ground(450, 750, 100, 500)
-        self.tip_cloud1 = TipCloud(450, 600, 200, 100, "Use Jump Pads to jump higher!")
+        self.tip_cloud1 = TipCloud(450, 600, 200, 100, "Use Jump Pads to \n jump higher!")
         self.bridge = Bridge(550, 750, 100, 20)
         self.island2 = Ground(650, 750, 100, 500)
 
         self.ground2 = Ground(750, 775, 200, 500)
 
-        self.jump_pad = JumpPad(850, 750, 50, 20, -1400)
+        self.jump_pad = JumpPad(850, 755, 50, 20, -1600)
         self.wall1 = Ground(900, -300, 20, 1200)
 
         self.platform1 = Ground(650, 300, 100, 50)
-        self.platform2 = Ground(500, 300, 100, 50)
-        self.platform3 = Ground(350, 300, 100, 50)
-        self.finish_level_trigger = FinishLevelTrigger(375, 200, 50, 100)
+        self.platform2 = Ground(450, 300, 100, 50)
+        self.platform3 = Ground(250, 300, 100, 50)
+        self.finish_level_trigger = FinishLevelTrigger(275, 200, 50, 100)
 
 
 
@@ -53,6 +53,8 @@ class Level4:
     def update(self, dt):
             apply_gravity(self.player, dt)
             move_and_collide(self.player, self.colliders, dt, self.triggers)
+            crouching_adjustment(self.player, self.colliders)
+            squash_adjustment(self.player, self.colliders)
             self.player.handle_input()
     def draw(self, screen):
 

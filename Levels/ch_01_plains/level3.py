@@ -2,7 +2,7 @@
 import pygame
 
 from sprites import Player, Ground, TipCloud, FinishLevelTrigger, Lava
-from physics import apply_gravity, move_and_collide
+from physics import apply_gravity, move_and_collide, crouching_adjustment, squash_adjustment
 from maincamera import follow_player
 
 
@@ -18,13 +18,13 @@ class Level3:
         self.stair1 = Ground(100, 700, 225, 50)
         self.stair2 = Ground(150, 650, 175, 50)
         self.stair3 = Ground(200, 600, 125, 50)
-        self.lava_pool = Lava(325, 800, 150, 500)
+        self.lava_pool = Lava(325, 800, 2000, 500)
         self. platform1 = Ground(345, 625, 100, 50)
-        self.platform2 = Ground(375, 625, 100, 50)
+        self.platform2 = Ground(655, 625, 100, 50)
 
-        self.tip_cloud = TipCloud(355, 300, 200, 100, "Watch out for the lava!")
+        self.tip_cloud = TipCloud(355, 300, 200, 50, "Watch out for the lava!")
 
-        self.finish_flag = FinishLevelTrigger(460, 575, 50, 100)
+        self.finish_flag = FinishLevelTrigger(752, 525, 50, 100)
 
         self.triggers = pygame.sprite.Group()
         self.triggers.add(self.finish_flag)
@@ -45,6 +45,8 @@ class Level3:
     def update(self, dt):
             apply_gravity(self.player, dt)
             move_and_collide(self.player, self.colliders, dt, self.triggers)
+            crouching_adjustment(self.player, self.colliders)
+            squash_adjustment(self.player, self.colliders)
             self.player.handle_input()
     def draw(self, screen):
 

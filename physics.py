@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 from sprites import Player
 
-GRAVITY = 1800
+GRAVITY = 2500
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
 
 
