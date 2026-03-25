@@ -8,6 +8,9 @@ from Levels.ch_01_plains.level3 import Level3
 from Levels.ch_01_plains.level4 import Level4
 from Levels.ch_01_plains.level5 import Level5
 from Levels.ch_01_plains.level6 import Level6
+from Levels.ch_01_plains.level7 import Level7
+from Levels.ch_02_too_many_spikes.level21 import Level21
+from Levels.ch_02_too_many_spikes.level22 import Level22
 
 
 pygame.init()
@@ -16,7 +19,7 @@ screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
-LEVELS = [Level1, Level2, Level3, Level4, Level5, Level6]
+LEVELS = [Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, ]
 current_level_index = 0
 current_level = LEVELS[current_level_index]()
 
