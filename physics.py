@@ -4,6 +4,7 @@ from sprites import Player
 
 GRAVITY = 2500
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
+MOVING_PLATFORM_TYPES = {"elevator_up_down", "elevator_left_right"}
 
 
 def apply_gravity(player, dt: float):
@@ -18,7 +19,31 @@ def activate_gravity_jump_pad(player, pad):
     player.ground = None
 
 
+def _is_moving_platform(sprite):
+    return getattr(sprite, "type", None) in MOVING_PLATFORM_TYPES
+
+
+def _carry_with_ground(player):
+    ground = getattr(player, "ground", None)
+    if not _is_moving_platform(ground):
+        return
+
+    if player.gravity_direction == "down" and player.vel.y < 0:
+        return
+    if player.gravity_direction == "up" and player.vel.y > 0:
+        return
+
+    if getattr(ground, "delta_x", 0) == 0 and getattr(ground, "delta_y", 0) == 0:
+        return
+
+    player.pos.x += ground.delta_x
+    player.rect.x = round(player.pos.x)
+    player.pos.y += ground.delta_y
+    player.rect.y = round(player.pos.y)
+
+
 def move_and_collide(player, colliders, dt: float, triggers):
+    _carry_with_ground(player)
     player.on_ground = False
     player.on_ice = False
     player.ground = None
@@ -253,12 +278,14 @@ def apply_speed_zones(player, triggers):
 
 
 
+
 #Antigravity Physics
 
 def apply_agt(player, dt: float):
     player.vel.y -= GRAVITY * dt  # Reverse gravity to create an antigravity effect
 
 def agt_move_and_collide(player, colliders, dt: float, triggers):
+    _carry_with_ground(player)
     player.on_ground = False
     player.on_ice = False
     player.ground = None

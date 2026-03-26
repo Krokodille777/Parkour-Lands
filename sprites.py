@@ -240,6 +240,7 @@ class ElevatorUpDown(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height))
         self.image.fill((0, 255, 255))  # Cyan color for elevator
         self.rect = self.image.get_rect(topleft = (x ,y))
+        self.pos = pygame.math.Vector2(x, y)
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'elevator_up_down' # Type identifier for elevator objects
         self.range = range
@@ -254,6 +255,7 @@ class ElevatorLeftRight(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height))
         self.image.fill((0, 255, 255))  # Cyan color for elevator
         self.rect = self.image.get_rect(topleft = (x ,y))
+        self.pos = pygame.math.Vector2(x, y)
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'elevator_left_right' # Type identifier for elevator objects
         self.range = range
