@@ -62,10 +62,6 @@ class Level26:
 
 
   
-
-
-        self.ladders = []
-        self.checkpoints = []
     def update(self, dt):
         updown_elevator_movement(self.elevator_up_down, 75, dt)
         leftright_elevator_movement(self.elevator_left_right, 75, dt)
@@ -74,8 +70,6 @@ class Level26:
         move_and_collide(self.player, self.colliders, dt, self.triggers)
         crouching_adjustment(self.player, self.colliders)
         squash_adjustment(self.player, self.colliders)
-        climb_ladder(self.player, self.ladders)
-        jump_from_the_top_of_ladder(self.player, self.ladders)
     def draw(self, screen):
         offset_x, offset_y = follow_player(
             self.player,
