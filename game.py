@@ -19,6 +19,10 @@ from Levels.ch_02_too_many_spikes.level27 import Level27
 from Levels.ch_02_too_many_spikes.level28 import Level28
 from Levels.ch_02_too_many_spikes.level29 import Level29
 from Levels.ch_02_too_many_spikes.level30 import Level30
+from Levels.ch_03_in_the_wake_of_Captain_Nemo.level31 import Level31
+from Levels.ch_03_in_the_wake_of_Captain_Nemo.level32 import Level32
+from Levels.ch_03_in_the_wake_of_Captain_Nemo.level33 import Level33
+from Levels.ch_03_in_the_wake_of_Captain_Nemo.level34 import Level34
 
 pygame.init()
 
@@ -26,7 +30,7 @@ screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
-LEVELS = [Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30]
+LEVELS = [Level34, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33,]
 current_level_index = 0
 current_level = LEVELS[current_level_index]()
 

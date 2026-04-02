@@ -146,6 +146,7 @@ class Water (pygame.sprite.Sprite):
      def __init__(self, x, y, width, height):
         super().__init__()
         self.image = pygame.Surface((width, height))
+        self.image.fill((7, 97, 242))  # Deep Sky Blue color for water
         self.rect = self.image.get_rect(topleft = (x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'water' # Type identifier for water object
@@ -310,8 +311,8 @@ class Fan (pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'fan' # Type identifier for fan objects
         self.direction = direction  # Direction should be a normalized vector (e.g., (0, -1) for up)
-        self.force =7500
-        self.range = 1050
+        self.force =3000
+        self.range = 500
 
 
 #Logic Sprites 

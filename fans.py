@@ -27,7 +27,20 @@ def apply_fan_effect(player, fan, dt):
     player.vel.x += direction_x * fan.force * dt
     player.vel.y += direction_y * fan.force * dt
 
-    
+def apply_fan_effect_in_water(player, fan, dt):
+    if not player.rect.colliderect(get_fan_area(fan)):
+        return
+
+    direction_x, direction_y = fan.direction
+    player.vel.x += direction_x * fan.force * dt * 0.5  # Reduced effect in water
+    player.vel.y += direction_y * fan.force * dt * 0.5
+
+def apply_fan_effect_left_right(player, fan, dt):
+    if not player.rect.colliderect(get_fan_area(fan)):
+        return
+
+    direction_x, _ = fan.direction
+    player.vel.x += direction_x * fan.force * dt
 def apply_fan_effect_to_block(block, fan, dt):
     if not block.rect.colliderect(get_fan_area(fan)):
         return
