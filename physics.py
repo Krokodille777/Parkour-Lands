@@ -5,6 +5,7 @@ from sprites import Player
 GRAVITY = 2500
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
 MOVING_PLATFORM_TYPES = {"elevator_up_down", "elevator_left_right"}
+PLATFORM_CONTACT_TOLERANCE = 6
 
 
 def apply_gravity(player, dt: float):
@@ -21,6 +22,15 @@ def activate_gravity_jump_pad(player, pad):
 
 def _is_moving_platform(sprite):
     return getattr(sprite, "type", None) in MOVING_PLATFORM_TYPES
+
+
+def _should_ignore_horizontal_platform_collision(collider, push_left, push_right, push_up, push_down):
+    if getattr(collider, "delta_y", 0) == 0 or getattr(collider, "delta_x", 0) != 0:
+        return False
+
+    # Vertical elevators should resolve from top/bottom instead of side-shoving
+    # the player when only a small vertical overlap is present near the edge.
+    return min(push_up, push_down) <= min(push_left, push_right) + PLATFORM_CONTACT_TOLERANCE
 
 
 def _carry_with_ground(player):
@@ -58,29 +68,17 @@ def move_and_collide(player, colliders, dt: float, triggers):
             continue
         if not player.rect.colliderect(c.rect):
             continue
+        push_right = c.rect.right - player.rect.left
+        push_left = player.rect.right - c.rect.left
+        push_down = c.rect.bottom - player.rect.top
+        push_up = player.rect.bottom - c.rect.top
+        if _should_ignore_horizontal_platform_collision(c, push_left, push_right, push_up, push_down):
+            continue
         if player.vel.x > 0:       # Moving right -> hit wall on the right
-            push_right = c.rect.right - player.rect.left
-            push_left = player.rect.right - c.rect.left
-            push_down = c.rect.bottom - player.rect.top
-            push_up = player.rect.bottom - c.rect.top
-            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and push_down <= push_up and push_down <= min(push_left, push_right):
-                continue
             player.rect.right = c.rect.left
         elif player.vel.x < 0:     # Moving left -> hit wall on the left
-            push_right = c.rect.right - player.rect.left
-            push_left = player.rect.right - c.rect.left
-            push_down = c.rect.bottom - player.rect.top
-            push_up = player.rect.bottom - c.rect.top
-            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and push_down <= push_up and push_down <= min(push_left, push_right):
-                continue
             player.rect.left = c.rect.right
         else:                       # Not moving horizontally but overlapping (e.g. resize)
-            push_right = c.rect.right - player.rect.left
-            push_left = player.rect.right - c.rect.left
-            push_down = c.rect.bottom - player.rect.top
-            push_up = player.rect.bottom - c.rect.top
-            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and min(push_up, push_down) < min(push_left, push_right):
-                continue
             if push_right < push_left:
                 player.rect.left = c.rect.right
             else:
@@ -299,29 +297,17 @@ def agt_move_and_collide(player, colliders, dt: float, triggers):
             continue
         if not player.rect.colliderect(c.rect):
             continue
+        push_right = c.rect.right - player.rect.left
+        push_left = player.rect.right - c.rect.left
+        push_down = c.rect.bottom - player.rect.top
+        push_up = player.rect.bottom - c.rect.top
+        if _should_ignore_horizontal_platform_collision(c, push_left, push_right, push_up, push_down):
+            continue
         if player.vel.x > 0:
-            push_right = c.rect.right - player.rect.left
-            push_left = player.rect.right - c.rect.left
-            push_down = c.rect.bottom - player.rect.top
-            push_up = player.rect.bottom - c.rect.top
-            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and push_down <= push_up and push_down <= min(push_left, push_right):
-                continue
             player.rect.right = c.rect.left
         elif player.vel.x < 0:
-            push_right = c.rect.right - player.rect.left
-            push_left = player.rect.right - c.rect.left
-            push_down = c.rect.bottom - player.rect.top
-            push_up = player.rect.bottom - c.rect.top
-            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and push_down <= push_up and push_down <= min(push_left, push_right):
-                continue
             player.rect.left = c.rect.right
         else:
-            push_right = c.rect.right - player.rect.left
-            push_left = player.rect.right - c.rect.left
-            push_down = c.rect.bottom - player.rect.top
-            push_up = player.rect.bottom - c.rect.top
-            if getattr(c, "delta_y", 0) != 0 and getattr(c, "delta_x", 0) == 0 and min(push_up, push_down) < min(push_left, push_right):
-                continue
             if push_right < push_left:
                 player.rect.left = c.rect.right
             else:

@@ -303,16 +303,77 @@ class EndPortal(pygame.sprite.Sprite):
 
 
 class Fan (pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, direction):
+    def __init__(self, x, y, width, height, direction, force, range):
         super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((192, 192, 192))  # Silver color for fan
+        self.direction = direction  # Direction should be a normalized vector (e.g., (0, -1) for up)
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self._draw_body()
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'fan' # Type identifier for fan objects
-        self.direction = direction  # Direction should be a normalized vector (e.g., (0, -1) for up)
-        self.force =3000
-        self.range = 500
+        self.force = force
+        self.range = range
+
+    def _draw_body(self):
+        width, height = self.image.get_size()
+        body_rect = self.image.get_rect()
+        border_radius = max(4, min(width, height) // 4)
+        frame_color = (202, 210, 219)
+        outline_color = (92, 102, 112)
+        grille_color = (73, 83, 94)
+        flow_color = (119, 225, 245, 220)
+
+        self.image.fill((0, 0, 0, 0))
+        pygame.draw.rect(self.image, frame_color, body_rect, border_radius=border_radius)
+        pygame.draw.rect(self.image, outline_color, body_rect, width=2, border_radius=border_radius)
+
+        center = body_rect.center
+        hub_radius = max(4, min(width, height) // 6)
+        blade_length = max(hub_radius + 4, min(width, height) // 2 - 2)
+        blade_width = max(4, min(width, height) // 6)
+
+        blades = [
+            ((center[0], center[1] - blade_length), (center[0] - blade_width, center[1]), (center[0] + blade_width, center[1])),
+            ((center[0] + blade_length, center[1]), (center[0], center[1] - blade_width), (center[0], center[1] + blade_width)),
+            ((center[0], center[1] + blade_length), (center[0] - blade_width, center[1]), (center[0] + blade_width, center[1])),
+            ((center[0] - blade_length, center[1]), (center[0], center[1] - blade_width), (center[0], center[1] + blade_width)),
+        ]
+        for blade in blades:
+            pygame.draw.polygon(self.image, grille_color, blade)
+
+        pygame.draw.circle(self.image, outline_color, center, hub_radius + 2)
+        pygame.draw.circle(self.image, (220, 227, 234), center, hub_radius)
+        self._draw_flow_markers(flow_color)
+
+    def _draw_flow_markers(self, color):
+        width, height = self.image.get_size()
+        direction_x, direction_y = self.direction
+
+        if direction_x != 0:
+            arrow_span = max(8, width // 3)
+            shaft_start = 5 if direction_x > 0 else width - 5
+            shaft_end = width - 9 if direction_x > 0 else 9
+            y_positions = [height // 4, height // 2, (height * 3) // 4]
+            for y in y_positions:
+                pygame.draw.line(self.image, color, (shaft_start, y), (shaft_end, y), 3)
+                if direction_x > 0:
+                    tip = [(width - 5, y), (width - arrow_span, y - 5), (width - arrow_span, y + 5)]
+                else:
+                    tip = [(5, y), (arrow_span, y - 5), (arrow_span, y + 5)]
+                pygame.draw.polygon(self.image, color, tip)
+        elif direction_y != 0:
+            arrow_span = max(8, height // 3)
+            shaft_start = 5 if direction_y > 0 else height - 5
+            shaft_end = height - 9 if direction_y > 0 else 9
+            x_positions = [width // 4, width // 2, (width * 3) // 4]
+            for x in x_positions:
+                pygame.draw.line(self.image, color, (x, shaft_start), (x, shaft_end), 3)
+                if direction_y > 0:
+                    tip = [(x, height - 5), (x - 5, height - arrow_span), (x + 5, height - arrow_span)]
+                else:
+                    tip = [(x, 5), (x - 5, arrow_span), (x + 5, arrow_span)]
+                pygame.draw.polygon(self.image, color, tip)
+
 
 
 #Logic Sprites 

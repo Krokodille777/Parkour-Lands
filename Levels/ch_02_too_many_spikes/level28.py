@@ -42,14 +42,14 @@ class Level28:
         self.all_sprites.add(self.ground2, layer = 0)
 
     def update(self, dt):
+        updown_elevator_movement(self.elevator_left, 175, dt)
+        updown_elevator_movement(self.elevator_mid, 120, dt)
+        updown_elevator_movement(self.elevator_right, 200, dt)
         self.player.handle_input()
         apply_gravity(self.player, dt)
         move_and_collide(self.player, self.colliders, dt, self.triggers)
         crouching_adjustment(self.player, self.colliders)
         squash_adjustment(self.player, self.colliders)
-        updown_elevator_movement(self.elevator_left, 175, dt)
-        updown_elevator_movement(self.elevator_mid, 120, dt)
-        updown_elevator_movement(self.elevator_right, 200, dt)
 
     def draw(self, screen):
         offset_x, offset_y = follow_player(

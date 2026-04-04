@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 from sprites import Player, Ground,  FinishLevelTrigger, Water, Ladder, TipCloud, Spike, ElevatorUpDown, Fan
 from physics import apply_gravity, move_and_collide, crouching_adjustment, squash_adjustment, buoyant_force, climb_ladder, jump_from_the_top_of_ladder
-from fans import apply_fan_effect, apply_fan_effect_in_water, apply_fan_effect_left_right
+from fans import apply_fan_effect
 from elevators import updown_elevator_movement
 from maincamera import follow_player
 
@@ -18,7 +18,7 @@ class Level34:
         self.floor = Ground (0, 850, 200, 150)
         self.ground2 = Ground (0, 750, 50, 50)
         self.water_pool = Water(0, 500, 200, 500)
-        self.fan_down = Fan(115, 825, 85, 25, (0, -1))
+        self.fan_down = Fan(115, 825, 85, 25, (0, -1), 2400, 550)
         self.wall = Ground(200, 200, 50, 750)
 
         self.platform1 = Ground(125, 200, 100, 50)
@@ -27,14 +27,14 @@ class Level34:
         self.elevator = ElevatorUpDown(325, 300, 75,50, 100)
         self.wall2 = Ground(650, 0, 75, 700)
         self.ground3 = Ground(425, 500, 225, 25)
-        self.fan_left = Fan(625, 415, 25, 85, (1, 0))
+        self.fan_left = Fan(625, 415, 25, 85, (-1, 0), 2100, 450)
 
         self.ground4 = Ground(250, 650, 400, 50)
         self.spike_down = Spike(250, 595, 35, 65, 0)
         self.block1 = Ground(425, 600, 50, 50)
         self.spike_up = Spike(535, 525, 35, 60, 180)
         
-
+        self.tip_cloud1 = TipCloud(300, 400, 200, 100, "Use the fan to reach the ladder!!")
         self.finish_level_trigger = FinishLevelTrigger(600, 550, 50, 100)
 
 
@@ -66,16 +66,16 @@ class Level34:
         
 
     def update(self, dt):
+        updown_elevator_movement(self.elevator, 100 ,dt)
         self.player.handle_input()
         apply_gravity(self.player, dt)
+        player_in_water = self.player.rect.colliderect(self.water_pool.rect)
+        apply_fan_effect(self.player, self.fan_down, dt, water_multiplier=0.5 if player_in_water else 1.0)
+        apply_fan_effect(self.player, self.fan_left, dt)
         move_and_collide(self.player, self.colliders, dt, self.triggers)
-        apply_fan_effect(self.player, self.fan_down, dt)
-        apply_fan_effect_left_right(self.player, self.fan_left, dt)
-        apply_fan_effect_in_water(self.player, self.fan_down, dt)
         crouching_adjustment(self.player, self.colliders)
         squash_adjustment(self.player, self.colliders)
         buoyant_force(self.player, [self.water_pool])
-        updown_elevator_movement(self.elevator, 100 ,dt)
         climb_ladder(self.player, [self.ladder])
         jump_from_the_top_of_ladder(self.player, [self.ladder])
     def draw(self, screen):
