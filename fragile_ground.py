@@ -46,7 +46,7 @@ def respawn_fragile_ground(colliders, all_sprites, fragile_grounds, dt):
             if fg.respawn_timer >= 3.0:  # Respawn after 3 seconds
                 all_sprites.add(fg, layer = 0)  # Add back to the sprite group to render it
                 if fg not in colliders:
-                    colliders.append(fg)  # Add back to colliders so player can collide with it again
+                    colliders.add(fg)  # Add back to colliders so player can collide with it again
                 fg.break_timer = 0
                 fg.respawn_timer = 0
                 fg.breaking = False

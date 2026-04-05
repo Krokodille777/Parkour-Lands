@@ -24,6 +24,8 @@ from Levels.ch_03_in_the_wake_of_Captain_Nemo.level32 import Level32
 from Levels.ch_03_in_the_wake_of_Captain_Nemo.level33 import Level33
 from Levels.ch_03_in_the_wake_of_Captain_Nemo.level34 import Level34
 from Levels.ch_03_in_the_wake_of_Captain_Nemo.level35 import Level35
+from Levels.ch_03_in_the_wake_of_Captain_Nemo.level36 import Level36
+from Levels.ch_03_in_the_wake_of_Captain_Nemo.level37 import Level37
 
 pygame.init()
 
@@ -31,7 +33,7 @@ screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
-LEVELS = [Level35, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34]
+LEVELS = [Level37, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36]
 current_level_index = 0
 current_level = LEVELS[current_level_index]()
 
