@@ -37,7 +37,7 @@ class Level36:
         self.fg3 = FragileGround(520, 475, 45, 45)
         self.block3 = Ground(425, 475, 90, 50)
         self.ground3 = Ground(0, 500, 425, 25 )
-        self.elevator = ElevatorLeftRight(180, 460, 65, 25, 150)
+        self.elevator = ElevatorLeftRight(185, 460, 65, 25, 150)
 
         self.ceiling2 = Ground(100, 225, 275, 175)
         self.dsp1 = DynamicSpikePlatform(150, 350, 75, 50)
