@@ -107,3 +107,11 @@ def on_ice(block, colliders):
 def use_jumppad(block, colliders):
     return getattr(block.ground, "type", None) == "jumppad"
 
+def respawn_block_while_x_pressed(block, colliders, triggers, dt):
+    if block.vel.x == 0 and block.vel.y == 0:
+        return
+
+    if triggers_check(block, triggers):
+        return
+
+    block_collisions(block, colliders, dt, triggers)
