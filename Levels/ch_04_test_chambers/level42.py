@@ -12,7 +12,7 @@ class Level42:
         self.WORLD_HEIGHT = 1500
         self.bg_color = (119, 164, 237)
         self.all_sprites = pygame.sprite.LayeredUpdates()
-        self.player = Player(60, 650, 50, 50)
+        self.player = Player(60, 700, 50, 50)
         self.ground = Ground(0, 750, 850, 500)
 
         

@@ -4,9 +4,9 @@ interact with the same world elements as the player.
 '''
 import pygame
 
-from physics import apply_gravity, move_and_collide
-
+from physics import apply_gravity, move_and_collide, _carry_with_block
 HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
+MOVING_PLATFORM_TYPES = {"elevator_up_down", "elevator_left_right"}
 PUSH_TOLERANCE = 4
 HEAD_SUPPORT_TOLERANCE = 3
 MIN_HEAD_OVERLAP = 10
@@ -96,6 +96,7 @@ def block_collisions(block, colliders, dt, triggers=None):
     prev_x, prev_y = block.rect.x, block.rect.y
     apply_gravity(block, dt)
     move_and_collide(block, colliders, dt, triggers or [])
+
     block.delta_x = block.rect.x - prev_x
     block.delta_y = block.rect.y - prev_y
 
@@ -103,11 +104,13 @@ def block_collisions(block, colliders, dt, triggers=None):
 def on_ice(block, colliders):
     return block.on_ice
 
+def on_moving_platform(block, colliders):
+    return getattr(block.ground, "type", None) in MOVING_PLATFORM_TYPES
 
 def use_jumppad(block, colliders):
     return getattr(block.ground, "type", None) == "jumppad"
 
-def respawn_block_while_x_pressed(block, colliders, triggers, dt):
+def respawn_block(block, colliders, triggers, dt):
     if block.vel.x == 0 and block.vel.y == 0:
         return
 

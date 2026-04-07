@@ -12,6 +12,7 @@ def updown_elevator_movement(elevator, range,  dt):
         elevator.direction = -1  # Change direction to up
     elevator.rect.y = round(elevator.pos.y)
     elevator.delta_y = elevator.rect.y - previous_y
+
         
 
 def leftright_elevator_movement(elevator, range, dt):

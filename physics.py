@@ -37,10 +37,10 @@ def _carry_with_ground(player):
     ground = getattr(player, "ground", None)
     if not _is_moving_platform(ground):
         return
-
-    if player.gravity_direction == "down" and player.vel.y < 0:
+    gravity_direction = getattr(player, "gravity_direction", "down")
+    if gravity_direction == "down" and player.vel.y < 0:
         return
-    if player.gravity_direction == "up" and player.vel.y > 0:
+    if gravity_direction == "up" and player.vel.y > 0:
         return
 
     if getattr(ground, "delta_x", 0) == 0 and getattr(ground, "delta_y", 0) == 0:
@@ -50,10 +50,23 @@ def _carry_with_ground(player):
     player.rect.x = round(player.pos.x)
     player.pos.y += ground.delta_y
     player.rect.y = round(player.pos.y)
+    
+def _carry_with_block(block):
+      ground = getattr(block, "ground", None)
+      if not _is_moving_platform(ground):
+          return
 
+      if getattr(ground, "delta_x", 0) == 0 and getattr(ground, "delta_y", 0) == 0:
+          return
+
+      block.pos.x += ground.delta_x
+      block.rect.x = round(block.pos.x)
+      block.pos.y += ground.delta_y
+      block.rect.y = round(block.pos.y)
 
 def move_and_collide(player, colliders, dt: float, triggers):
     _carry_with_ground(player)
+
     player.on_ground = False
     player.on_ice = False
     player.ground = None
@@ -213,12 +226,19 @@ def squash_adjustment(player, colliders):
     # Enough room — allow unsquashing
     player.squashed = False
 
-def x_pressed(player, colliders):
+def x_pressed(player, box, colliders):
     keys = pygame.key.get_pressed()
     if keys[K_x]:
         player.pos = pygame.math.Vector2(60, 250)
         player.rect.topleft = player.pos
         player.vel = pygame.math.Vector2(0, 0)
+        box.pos = pygame.math.Vector2(350, 155)
+        box.rect.topleft = box.pos
+        box.vel = pygame.math.Vector2(0, 0)
+        player.on_ground = False
+        player.ground = None
+        box.on_ground = False
+        box.ground = None
 
 #Gravity should affect only if you fall off the ladder, not while climbing. So we apply gravity in the main loop as usual, but if the player is on a ladder and pressing up/down, we override the vertical velocity and skip gravity for that frame.
 def climb_ladder(player, ladder_group):

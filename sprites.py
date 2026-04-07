@@ -462,7 +462,7 @@ class TrapDoor(pygame.sprite.Sprite):
 
 
 class PushableBlock(pygame.sprite.Sprite):
-    SPEED = 400
+    SPEED = 0
     JUMP_VEL = -700
     ICE_ACCEL = 600       # How fast the player accelerates on ice (px/s²)
     ICE_FRICTION = 300   # How fast the player decelerates on ice when no input (px/s²)

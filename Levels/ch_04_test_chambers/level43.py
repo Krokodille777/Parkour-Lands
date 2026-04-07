@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 from sprites import Player, Ground,FinishLevelTrigger, PushableBlock, FragileGround, TipCloud, Bridge, Button, Door, TrapDoor
 from physics import apply_gravity, move_and_collide, crouching_adjustment, squash_adjustment
-from pushableBlock import push_the_block, block_collisions, respawn_block_while_x_pressed
+from pushableBlock import push_the_block, block_collisions, respawn_block
 from button_door_trap import press_button, link_button_to_door, link_button_to_trapdoor, open_door_trapdoor
 from fragile_ground import fragile_ground_check, respawn_fragile_ground, trigger_fragile_ground
 from maincamera import follow_player
@@ -82,7 +82,7 @@ class Level43:
         link_button_to_trapdoor([self.button2], [self.trapdoor])
         open_door_trapdoor([self.door], [self.trapdoor])
 
-        respawn_block_while_x_pressed(self.box, self.colliders, self.triggers, dt)
+        respawn_block(self.box, self.colliders, self.triggers, dt)
 
     def draw(self, screen):
         offset_x, offset_y = follow_player(
