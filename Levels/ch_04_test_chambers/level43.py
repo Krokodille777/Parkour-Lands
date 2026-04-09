@@ -37,7 +37,7 @@ class Level43:
         self.block2= Ground(440, 385, 60, 35)
         self.wall3 = Ground(445, 300, 50, 85)
         self.box = PushableBlock(350, 185, 85, 85)
-        self.tip_cloud = TipCloud(65, 0, 175, 120, "Door seems to be locked. \n But it opens only when the button is pressed. \n Maybe there's something else \n that can be triggered by the button?")
+        self.tip_cloud = TipCloud(65, 0, 175, 120, "To unlock the door (or trapdoor), \n the button should be pressed.")
         self.finish_level_trigger = FinishLevelTrigger(1025, 575, 50, 100)
 
 

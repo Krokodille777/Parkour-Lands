@@ -53,6 +53,8 @@ def teleport_player(player, portal):
     player.pos.x = linked_portal.rect.centerx - player.rect.width / 2
     player.pos.y = linked_portal.rect.centery - player.rect.height / 2
     player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+    player.vel.x = 0
+    player.vel.y = 0
     player.on_ground = False
     player.ground = None
 
@@ -87,6 +89,8 @@ def teleport_pushable_block(block, portal):
     block.pos.x = linked_portal.rect.centerx - block.rect.width / 2
     block.pos.y = linked_portal.rect.centery - block.rect.height / 2
     block.rect.topleft = (round(block.pos.x), round(block.pos.y))
+    block.vel.x = 0
+    block.vel.y = 0
     block.on_ground = False
     block.ground = None
 

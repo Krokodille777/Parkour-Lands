@@ -18,7 +18,7 @@ class Level41:
         self.box = PushableBlock(300, 665, 85, 85)
 
         self.ground2 = Ground(550, 600, 550, 500)
-        self.tip_cloud = TipCloud(65, 0, 175, 120, "Welcome to the test chambers! \n Each of them equipped with \n a puzzle that you need to solve to \n get to the next one. \n Good luck!")
+        self.tip_cloud = TipCloud(65, 0, 175, 120, "Push the box to reach \n wherever you want!")
         self.finish_level_trigger = FinishLevelTrigger(900, 500, 50, 100)
 
 

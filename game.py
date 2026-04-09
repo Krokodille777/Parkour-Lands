@@ -33,13 +33,15 @@ from Levels.ch_04_test_chambers.level41 import Level41
 from Levels.ch_04_test_chambers.level42 import Level42
 from Levels.ch_04_test_chambers.level43 import Level43
 from Levels.ch_04_test_chambers.level44 import Level44
+from Levels.ch_04_test_chambers.level45 import Level45
+from Levels.ch_04_test_chambers.level46 import Level46
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
-LEVELS = [Level44, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36,  Level37, Level38, Level39, Level40, Level41, Level42, Level43]
+LEVELS = [Level46, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36,  Level37, Level38, Level39, Level40, Level41, Level42, Level43, Level44, Level45]
 current_level_index = 0
 current_level = LEVELS[current_level_index]()
 
