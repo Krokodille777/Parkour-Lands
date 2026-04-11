@@ -43,7 +43,11 @@ def link_button_to_trapdoor(buttons, traps):
         linked_button = getattr(trap, "linked_button", None)
         linked_from_button = any(trap in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
         trap.open = bool((linked_button and linked_button.pressed) or linked_from_button)
-
+def link_button_to_fan(buttons, fans):
+    for fan in fans:
+        linked_button = getattr(fan, "linked_button", None)
+        linked_from_button = any(fan in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        fan.active = bool((linked_button and linked_button.pressed) or linked_from_button)
 
 def open_door_trapdoor(doors, traps):
     for door in doors:
@@ -52,3 +56,8 @@ def open_door_trapdoor(doors, traps):
         trap.set_open(trap.open)
 
 
+def activate_fan_from_button(buttons, fans):
+    for fan in fans:
+        linked_button = getattr(fan, "linked_button", None)
+        linked_from_button = any(fan in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        fan.active = bool((linked_button and linked_button.pressed) or linked_from_button)

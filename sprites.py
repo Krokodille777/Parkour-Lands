@@ -460,7 +460,18 @@ class TrapDoor(pygame.sprite.Sprite):
             )
         self.mask = pygame.mask.from_surface(self.image)
 
+class ControllableFan(Fan):
+    def __init__(self, x, y, width, height, direction, force, range):
+        super().__init__(x, y, width, height, direction, force, range)
+        self.active = False  # Fan starts inactive
 
+    def set_active(self, active):
+        self.active = active
+        if self.active:
+            self._draw_body()  # Draw normal fan when active
+        else:
+            self.image.fill((0, 0, 0, 0))  # Make invisible when inactive
+            self.mask = pygame.mask.from_surface(self.image)
 class PushableBlock(pygame.sprite.Sprite):
     SPEED = 0
     JUMP_VEL = -700
