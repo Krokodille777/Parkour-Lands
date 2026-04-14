@@ -558,7 +558,7 @@ class AlterStand(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
         self.image = pygame.Surface((width, height))
-        self.image.fill((255, 20, 147))  # Deep pink color for alter stand
+        self.image.fill((110, 9, 9))  # Deep Red color for alter stand
         self.rect = self.image.get_rect(topleft = (x ,y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'alter_stand' # Type identifier for alter stand objects
@@ -578,7 +578,7 @@ class GravityJumpPad(pygame.sprite.Sprite):
 class AlterPlayer(Player):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height)
-        self.color = (255, 20, 147)
+        self.color = (0, 0, 0)
         anchor_y = self.rect.bottom if self.gravity_direction == "down" else self.rect.top
         self._apply_body_size(self.full_width, self.full_height, anchor_y)
         self.type = 'alter_player' # Type identifier for alter player objects

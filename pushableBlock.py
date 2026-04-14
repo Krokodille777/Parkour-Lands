@@ -118,3 +118,7 @@ def respawn_block(block, colliders, triggers, dt):
         return
 
     block_collisions(block, colliders, dt, triggers)
+
+def push_the_block_as_hyde(player, block, dt):
+    if not player.frozen:
+        push_the_block(player, block, dt)
