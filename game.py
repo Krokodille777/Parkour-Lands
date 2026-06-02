@@ -44,6 +44,9 @@ from Levels.ch_05_drjekyll_n_mrhyde.level52 import Level52
 from Levels.ch_05_drjekyll_n_mrhyde.level53 import Level53
 from Levels.ch_05_drjekyll_n_mrhyde.level54 import Level54
 from Levels.ch_05_drjekyll_n_mrhyde.level55 import Level55
+from Levels.ch_05_drjekyll_n_mrhyde.level56 import Level56
+from Levels.ch_05_drjekyll_n_mrhyde.level57 import Level57
+from Levels.ch_05_drjekyll_n_mrhyde.level58 import Level58
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
@@ -54,7 +57,7 @@ def restart_level():
     global current_level, current_level_index
     current_level_index = 0
     current_level = LEVELS[current_level_index]()
-LEVELS = [Level55, Level53, Level54, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36,  Level37, Level38, Level39, Level40, Level41, Level42,(Level43),(Level44), (Level45), (Level46),(Level47),(Level48), (Level49), (Level410), Level51, Level52]
+LEVELS = [Level58, Level57, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36,  Level37, Level38, Level39, Level40, Level41, Level42,(Level43),(Level44), (Level45), (Level46),(Level47),(Level48), (Level49), (Level410), Level51, Level52, Level53, Level54, Level55, Level56, ]
 current_level_index = 0
 current_level = LEVELS[current_level_index]()
 
