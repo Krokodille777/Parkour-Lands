@@ -3,7 +3,7 @@ from pygame.locals import *
 from sprites import Player
 
 GRAVITY = 2500
-HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap"}
+HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap", "icicle"}
 MOVING_PLATFORM_TYPES = {"elevator_up_down", "elevator_left_right"}
 PLATFORM_CONTACT_TOLERANCE = 6
 
@@ -12,12 +12,7 @@ def apply_gravity(player, dt: float):
     player.vel.y += GRAVITY * dt
 
 
-def activate_gravity_jump_pad(player, pad):
-    player.gravity_direction = "up" if player.gravity_direction == "down" else "down"
-    player.vel.y = pad.launch_vel if player.gravity_direction == "up" else -pad.launch_vel
-    player.vel.x += abs(pad.launch_vel) * 0.5 if player.vel.x >= 0 else -abs(pad.launch_vel) * 0.5
-    player.on_ground = False
-    player.ground = None
+
 
 
 def _is_moving_platform(sprite):
@@ -137,6 +132,13 @@ def move_and_collide(player, colliders, dt: float, triggers):
             if getattr(c, "type", None) == "gravity_jump_pad":
                 activate_gravity_jump_pad(player, c)
             if getattr(c, "type", None) == "lava":
+                player.pos = pygame.math.Vector2(player.spawn_point)
+                player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+                player.vel = pygame.math.Vector2(0, 0)
+                player.on_ground = False
+                player.ground = None
+                return
+            if getattr(c, "type", None) == "icicle":
                 player.pos = pygame.math.Vector2(player.spawn_point)
                 player.rect.topleft = (round(player.pos.x), round(player.pos.y))
                 player.vel = pygame.math.Vector2(0, 0)
@@ -298,6 +300,14 @@ def apply_speed_zones(player, triggers):
 
 
 #Antigravity Physics
+def activate_gravity_jump_pad(player, c):
+    if not hasattr(player, 'gravity_direction'):
+        return  # коробка — игнорируем
+    player.gravity_direction = "up" if player.gravity_direction == "down" else "down"
+    player.vel.y = c.launch_vel if player.gravity_direction == "up" else -c.launch_vel
+    player.vel.x += abs(c.launch_vel) * 0.5 if player.vel.x >= 0 else -abs(c.launch_vel) * 0.5
+    player.on_ground = False
+    player.ground = None
 
 def apply_agt(player, dt: float):
     player.vel.y -= GRAVITY * dt  # Reverse gravity to create an antigravity effect
@@ -371,6 +381,14 @@ def agt_move_and_collide(player, colliders, dt: float, triggers):
                 activate_gravity_jump_pad(player, c)
 
             if getattr(c, "type", None) == "lava":
+                player.pos = pygame.math.Vector2(player.spawn_point)
+                player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+                player.vel = pygame.math.Vector2(0, 0)
+                player.on_ground = False
+                player.ground = None
+                player.gravity_direction = "down"
+                return
+            if getattr(c, "type", None) == "icicle":
                 player.pos = pygame.math.Vector2(player.spawn_point)
                 player.rect.topleft = (round(player.pos.x), round(player.pos.y))
                 player.vel = pygame.math.Vector2(0, 0)

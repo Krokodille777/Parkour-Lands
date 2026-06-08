@@ -188,6 +188,18 @@ class DynamicSpike(pygame.sprite.Sprite):
         self.phase = 0.0
         self.type = 'dynamic_spike' # Type identifier for dynamic spike object
 
+class Icicle(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle):
+        super().__init__()
+        self.angle = angle % 360
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (173, 216, 230), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the icicle
+        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the icicle to the specified angle
+        self.image.fill((173, 216, 230, 200), special_flags=pygame.BLEND_RGBA_MULT)  # Semi transparent light blue color for icicle
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'icicle' # Type identifier for icicle object
+
 #Bridge class is similar to ground, but with different color and type identifier, so we can add different physics if needed in the future
 class Bridge (pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
@@ -620,8 +632,26 @@ class TipCloud(pygame.sprite.Sprite):
               self.image.blit(text_surface, (10, y_offset))
               y_offset +=24
 
+class Void(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 0, 0))  # Black color for void
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'void' # Type identifier for void objects
 ACCELERATION_SPEED = 400
 DECELERATION_SPEED = 600
+
+
+
+#Sprites for chapter 6 and 7: 
+# SoulGround (Hell version of ground), 
+# Two new liquids: Blood and Acid.
+# New lava type: Rising Lava
+#New Spike types: Ember Crystals
+# New Bg object: Void (same physics as air, just has black color)
+#All  other sprites are the same as in chapter 5, but with different color schemes, to fit the hell theme of chapter 6 and the laboratory theme of chapter 7.
 
 def retrieve_speeds(_type: str):
     return ACCELERATION_SPEED, DECELERATION_SPEED

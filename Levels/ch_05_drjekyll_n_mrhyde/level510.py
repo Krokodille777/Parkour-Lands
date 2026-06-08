@@ -1,0 +1,387 @@
+import pygame
+from pygame.locals import *
+from sprites import Player, Ground, FinishLevelTrigger, JumpPad, Ladder, Ice, Icicle, DynamicSpikePlatform, DynamicSpike, Lava, Water, Checkpoint, FragileGround, Fan, PressTrap, GravityJumpPad, Bridge, StartPortal, EndPortal, TipCloud, Spike, Void
+from physics import apply_gravity, apply_agt, move_and_collide, agt_move_and_collide, climb_ladder, jump_from_the_top_of_ladder, buoyant_force, crouching_adjustment, squash_adjustment
+from dynamic_spike import dynamic_spike_movement_based_on_timer
+from fragile_ground import trigger_fragile_ground, fragile_ground_check, respawn_fragile_ground
+from fans import apply_fan_effect
+from checkpoint import checkpoint_activation
+from press_trap import apply_press_trap_effect, update_press_trap
+from portals import link_portals, teleport_player, cooldown_timer
+from maincamera import follow_player
+
+class Level510:
+       def __init__(self):
+            self.WORLD_WIDTH=3500
+            self.WORLD_HEIGHT=2000
+            self.all_sprites = pygame.sprite.LayeredUpdates()
+
+            self.player = Player(50, 900, 50, 50)
+            self.ice_floor = Ice(0, 950, 150, 500)
+            self.small_wall = Bridge(150, 925, 50, 75)
+            self.spike_down = Spike(150, 900, 50, 25, 0)
+            self.ice_floor2 = Ice(200, 925, 125, 500)
+            self.floating_platform = DynamicSpikePlatform(225, 815, 75, 50)
+            self.dsu = DynamicSpike(225, 865, 25, 25, 180)
+            self.dsu2 = DynamicSpike(250, 865, 25, 25, 180)
+            self.dsu3 = DynamicSpike(275, 865, 25, 25, 180)
+            self.icicle_down = Icicle(325, 950, 25,35, 0)
+            self.icicle_down2 = Icicle(350, 950, 25,35, 0)
+            self.icicle_down3 = Icicle(375, 950, 25,35, 0)
+            self.icicle_down4 = Icicle(400, 950, 25,35, 0)
+            self.icicle_down5 = Icicle(425, 950, 25,35, 0)
+            self.wall = Bridge(450, 835, 50, 300)
+            self.fg1 = FragileGround(520, 785, 50, 50)
+            self.lava1 = Lava(500, 845, 200, 155)
+            self.fg2 = FragileGround(570, 785, 50, 50)
+            self.wall2 = Bridge(700, 835, 50, 300)
+            self.floor = Ground(750, 950, 85, 200)
+            self.fan_up = Fan(755, 900, 75, 50, (0, -1), 2000, 700)
+            self.ice_wall = Ice(835, 650, 50, 300)
+
+            # Second floor
+
+            self.ice_ceiling = Ice(700, 600, 135, 50)
+            self.ice_ceiling2 = Ice(720, 575, 80, 25)
+            self.icicle_up = Icicle(735, 600, 25, 35, 180)
+            self.icicle_up2 = Icicle(760, 600, 25, 35, 180)
+            self.small_wall2 = DynamicSpikePlatform(695, 525, 25, 75)
+            self.ice_ceiling3 = Ice(495, 525, 200, 25)
+            self.block = DynamicSpikePlatform(545, 550, 50, 50)
+            self.spike_right = Spike(595, 550, 50, 35, -90)
+            self.blocks = DynamicSpikePlatform(545, 610, 50, 100)
+            self.lava2 = Lava(375, 500, 120, 50)
+            self.ice_ceiling4 = Ice(300, 500, 75, 50)
+            self.checkpoint = Checkpoint(350, 525, 25, 50)
+            self.agt_jump_pad2 = GravityJumpPad(300, 500, 35, 25, 3500)
+            self.lava3 = Lava(250, 500, 50, 50)
+
+            self.ice_floor3 = Ice(500, 720, 200, 25)
+            self.agt_jump_pad = GravityJumpPad(500, 695, 50, 25, -1500)
+
+            # Water Section
+
+            self.wall3 = Bridge(225, 350, 25, 360)
+            self.ice_wall2 = Ice(0, 0, 50, 780)
+            self.ice_ceiling5 = Ice(0, 0, 500, 150)
+            self.giant_icicle_up = Icicle(55, 150, 50, 100, 180)
+            self.giant_icicle_up2 = Icicle(105, 150, 50, 65, 180)
+            self.ice_floor4 = Ice(0, 780, 375, 35)
+            self.ice_wall3 = Ice(375, 580, 35, 235)
+            self.water = Water(50, 350, 175,430)
+            self.water2 = Water(225, 585, 150, 195)
+            self.press_trap = PressTrap(250, 580, 70, 100, 90)
+            self.icicle_left = Icicle(350, 675, 35, 25, 90)
+            self.icicle_down6 = Icicle(335, 745, 25, 35, 0)
+            self.icicle_up3 = Icicle(250, 650, 25, 35, 180)
+            self.fan_up2 = Fan(55, 720, 75, 50, (0, -1), 4500, 700)
+            self.icicle_right = Icicle(50, 615, 35, 25, -90)
+            self.icicle_left2 = Icicle(200, 615, 25, 25, 90)
+            self.icicle_right2 = Icicle(50, 410, 35, 25, -90)
+            self.icicle_left3 = Icicle(200, 450, 30, 25, 90)
+
+            #Third floor
+            self.ice_floor5 = Ice(250, 400, 150, 100)
+            self.small_block = DynamicSpikePlatform(250, 375, 35, 25)
+            self.icicle_down7 = Icicle(340, 365, 25, 35, 0)
+            self.ground = Ground(400, 375, 100, 100)
+            self.dsp = DynamicSpikePlatform(425, 375, 50, 25)
+            self.dsd = DynamicSpike(425, 350, 25, 25, 0)
+            self.dsd2 = DynamicSpike(450, 350, 25, 25, 0)
+
+            self.lava4 = Lava(500, 450, 175, 75)
+            self.fg3 = FragileGround(565, 350, 50, 50)
+
+            self.wall4 = Ice(675, 350, 35, 125 )
+            self.icicle_left4 = Icicle(640, 375, 25, 35, 90)
+            self.icicle_right3 = Icicle(710, 375, 25, 35, -90)
+            self.wall5 = Ice(675, 150, 35, 130)
+            self.icicle_left5 = Icicle(640, 255, 25, 35, 90)
+            self.icicle_right4 = Icicle(710, 255, 25, 35, -90)
+
+            self.platform = Ground(730, 380, 65, 25)
+            self.jumppad = JumpPad(730, 345, 50, 35, -1500)
+            self.ladder = Ladder(815, 345, 25, 85)
+            self.water3 = Water(720, 530, 115, 70)
+
+            self.ice_wall4 = Ice(835, 0, 50, 1150)
+            self.platform2 = Bridge(775, 280, 60, 25)
+            self.agt_jump_pad3 = GravityJumpPad(785, 255, 50, 25, -2000)
+            self.ice_platform = Ice(740, 130, 95, 25)
+            self.agt_jump_pad4 = GravityJumpPad(740, 155, 50, 25, 2000)
+            self.ice_platform2 = Ice(590, 235, 85, 25)
+            self.blue_portal = StartPortal(590, 180, 50, 75)
+
+            #Void Rooms
+
+            self.void = Void(0, 1800, 2000, 2000)
+
+            #Room 1
+            self.room_wall = DynamicSpikePlatform(200, 1800, 25, 150)
+            self.room_floor = DynamicSpikePlatform(200, 1950, 200, 25)
+            self.room_ceiling = DynamicSpikePlatform(200, 1800, 200, 25)
+            self.room_wall2 = DynamicSpikePlatform(400, 1800, 25, 150)
+            self.orange_portal= EndPortal(200, 1850, 50, 100)
+            self.blue_portal2 = StartPortal(350, 1850, 50, 100)
+
+            #Room2
+            self.room2_wall = DynamicSpikePlatform(600, 2100, 25, 150)
+            self.room2_floor = DynamicSpikePlatform(600, 2250, 200, 25)
+            self.room2_ceiling = DynamicSpikePlatform(600, 2100, 200, 25)
+            self.room2_wall2 = DynamicSpikePlatform(800, 2100, 25, 150)
+            self.orange_portal2 = EndPortal(725, 2100, 75, 50)
+            self.stairs1 = TipCloud(750, 2165, 25, 85, "")
+            self.stairs2 = TipCloud(735, 2180, 15, 70, "")
+            self.stairs3 = TipCloud(720, 2195, 15, 55, "")
+            self.stairs4 = TipCloud(705, 2210, 15, 40, "")
+            self.white_block = TipCloud(660, 2100, 25, 75, "")
+            self.spike_up = Spike(660, 2175, 25, 25, 180)
+            self.blue_portal3 = StartPortal(600, 2175, 25, 75)
+
+            #Room 3
+            self.room3_wall = DynamicSpikePlatform(700, 1800, 25, 150)
+            self.room3_floor = DynamicSpikePlatform(700, 1950, 200, 25)
+            self.room3_ceiling = DynamicSpikePlatform(700, 1800, 200, 25)
+            self.room3_wall2 = DynamicSpikePlatform(900, 1800, 25, 150)
+            self.orange_portal3 = EndPortal(700, 1805, 50, 75)
+            self.floor2 = TipCloud(700, 1880, 75, 15, "")
+            self.column = TipCloud(735, 1895, 15, 55, "")
+            self.dsp2 = DynamicSpikePlatform(775, 1800, 50, 25)
+            self.dsu4 = DynamicSpike(775, 1825, 25, 25, 180)
+            self.dsu5 = DynamicSpike(800, 1825, 25, 25, 180)
+            self.lava5 = Lava(750, 1930, 100, 15)
+            self.floor3 = TipCloud(810, 1880, 75, 15, "")
+            self.column2 = TipCloud(810, 1895, 15, 55, "")
+            self.blue_portal4 = StartPortal(850, 1805, 50, 75)
+
+
+            #Room 4
+            self.room4_wall = DynamicSpikePlatform(400, 2300, 25, 150)
+            self.room4_floor = DynamicSpikePlatform(400, 2450, 200, 25)
+            self.room4_ceiling = DynamicSpikePlatform(400, 2300, 200, 25)
+            self.room4_wall2 = DynamicSpikePlatform(600, 2300, 25, 150)
+            self.orange_portal4 = EndPortal(400, 2375, 50, 75)
+            self.floor4= TipCloud(400, 2360, 105, 15, "")
+            self.jumpPad2 = JumpPad(570, 2425, 50, 25, -950)
+            self.spike_up2 = Spike(450, 2360, 25, 25, 180)
+            self.spike_up3 = Spike(475, 2360, 25, 25, 180)
+            self.blue_portal5 = StartPortal(400, 2300, 75, 50)
+
+            #Final Room 
+
+            self.final_room_wall = DynamicSpikePlatform(100, 2800, 25, 150)
+            self.final_room_floor = DynamicSpikePlatform(100, 2950, 600, 25)
+            self.final_room_ceiling = DynamicSpikePlatform(100, 2800, 600, 25)
+            self.final_room_wall2 = DynamicSpikePlatform(700, 2800, 25, 150)
+            self.orange_portal5 = EndPortal(100, 2850, 50, 100)
+            self.blue_portal6 = StartPortal(650, 2800, 50, 100)
+            self.press_trap2 = PressTrap(185, 2800, 70, 150, 180)
+            self.small_floor = TipCloud(255, 2925, 50, 25, "")
+            self.agt_jump_pad5 = GravityJumpPad(280, 2090, 35, 25, -700)
+            self.spike_down2 = Spike(305, 2925, 25,25, 0)
+            self.spike_down3 = Spike(330, 2925, 25,25, 0)
+            self.spike_down4 = Spike(355, 2925, 25,25, 0)
+            self.spike_up4 = Spike(380, 2800, 25, 25, 180)
+            self.agt_jump_pad6 = GravityJumpPad(405, 2825, 35, 25, 700)
+            self.spike_up5 = Spike(440, 2800, 25, 25, 180)
+            self.wall6 =TipCloud(475, 2800, 100, 125, "")
+            self.stairs5 = TipCloud(590, 2925, 65, 25, "")
+            self.stairs6 = TipCloud(625, 2900, 25, 25, "")
+
+
+            #Final Section: 
+
+
+            self.orange_portal6 = EndPortal(885, 100, 200, 50)
+            self.ice_wall5 = Ice(1035, 0, 50, 1150)
+            self.void2 = Void(885, 650, 150, 500)
+            self.finish_level_trigger = FinishLevelTrigger(885, 1125, 150, 200)
+
+            self.colliders = pygame.sprite.Group()
+            self.colliders.add(self.ice_floor, self.small_wall,self.ice_floor2, self.floating_platform, self.wall2, self.wall, self.fg1, self.fg2, self.floor, self.fan_up, self.ice_wall, self.ice_wall5,  self.ice_ceiling, self.ice_ceiling2, self.small_wall2, self.ice_ceiling3, self.block, self.blocks,  self.ice_ceiling4, self.agt_jump_pad2,  self.wall3, self.ice_wall2, self.ice_ceiling5, self.ice_floor4, self.ice_wall3, self.press_trap,  self.fan_up2, self.ice_floor5,self.small_block,self.icicle_down7,self.ground,self.dsp,self.fg3,self.wall4,self.wall5,self.platform,self.jumppad,self.ice_wall4,self.platform2,self.agt_jump_pad3,self.ice_platform,self.agt_jump_pad4,self.ice_platform2,self.void,self.room_wall,self.room_floor,self.room_ceiling,self.room_wall2,self.room2_wall,self.room2_floor,self.room2_ceiling,self.room2_wall2,self.stairs1,self.stairs2,self.stairs3,self.stairs4,self.white_block,self.room3_wall,self.room3_floor,self.room3_ceiling,self.room3_wall2,self.floor2,self.column,self.dsp2,self.floor3,self.column2,self.room4_wall,self.room4_floor,self.room4_ceiling,self.room4_wall2,self.floor4,self.jumpPad2,self.final_room_wall,self.final_room_floor,self.final_room_ceiling,self.final_room_wall2,self.press_trap2,self.small_floor,self.agt_jump_pad5,self.wall6, self.stairs5, self.stairs6
+            )
+            self.triggers = pygame.sprite.Group()
+            self.triggers.add(self.spike_down, self.fg1, self.fg2, self.fg3, self.press_trap, self.press_trap2, self.dsu, self.dsu2, self.dsu3, self.icicle_down, self.icicle_down2, self.icicle_down3, self.icicle_down4, self.icicle_down5, self.icicle_up, self.icicle_up2, self.spike_right, self.press_trap,self.icicle_left,self.icicle_down6,self.icicle_up3,self.fan_up2,self.icicle_right,self.icicle_left2,self.icicle_right2,self.icicle_left3,self.icicle_down7,self.dsd,self.dsd2,self.spike_up2,self.spike_up3,self.jumppad,self.agt_jump_pad,self.agt_jump_pad2,self.agt_jump_pad3,self.agt_jump_pad4,self.agt_jump_pad5,self.agt_jump_pad6, self.blue_portal,self.orange_portal,self.blue_portal2,self.orange_portal2,self.blue_portal3,self.orange_portal3,self.blue_portal4,self.orange_portal4,self.blue_portal5,self.orange_portal5,self.blue_portal6,self.orange_portal6, self.finish_level_trigger, self.checkpoint, self.water, self.water2, self.water3, self.lava1, self.lava2, self.lava3, self.lava4, self.lava5)
+            
+
+            self.all_sprites.add(self.player, layer = 2)
+            self.all_sprites.add(self.spike_down, layer = 3)
+            self.all_sprites.add(self.ice_floor, layer = 1)
+            self.all_sprites.add(self.small_wall, layer = 1)
+            self.all_sprites.add(self.ice_floor2, layer = 1)
+            self.all_sprites.add(self.floating_platform, layer = 1)
+            self.all_sprites.add(self.dsu, layer = 3)
+            self.all_sprites.add(self.dsu2, layer = 3)
+            self.all_sprites.add(self.dsu3, layer = 3)
+            self.all_sprites.add(self.icicle_down, layer = 3)
+            self.all_sprites.add(self.icicle_down2, layer = 3)
+            self.all_sprites.add(self.icicle_down3, layer = 3)
+            self.all_sprites.add(self.icicle_down4, layer = 3)
+            self.all_sprites.add(self.icicle_down5, layer = 3)
+            self.all_sprites.add(self.wall, layer = 1)
+            self.all_sprites.add(self.fg1, layer = 1)
+            self.all_sprites.add(self.lava1, layer = 1)
+            self.all_sprites.add(self.fg2, layer = 1)
+            self.all_sprites.add(self.wall2, layer = 1)
+            self.all_sprites.add(self.floor, layer = 1)
+            self.all_sprites.add(self.fan_up, layer = 1)
+            self.all_sprites.add(self.ice_wall, layer = 1)
+            self.all_sprites.add(self.ice_ceiling, layer = 1)
+            self.all_sprites.add(self.ice_ceiling2, layer = 1)
+            self.all_sprites.add(self.icicle_up, layer = 3)
+            self.all_sprites.add(self.icicle_up2, layer = 3)
+            self.all_sprites.add(self.small_wall2, layer = 1)
+            self.all_sprites.add(self.ice_ceiling3, layer = 1)
+            self.all_sprites.add(self.block, layer = 1)
+            self.all_sprites.add(self.spike_right, layer = 3)
+            self.all_sprites.add(self.blocks, layer = 1)
+            self.all_sprites.add(self.lava2, layer = 1)
+            self.all_sprites.add(self.ice_ceiling4, layer = 1)
+            self.all_sprites.add(self.agt_jump_pad2, layer = 1)
+            self.all_sprites.add(self.wall3, layer = 1)
+            self.all_sprites.add(self.ice_wall2, layer = 1)
+            self.all_sprites.add(self.ice_ceiling5, layer = 1)
+            self.all_sprites.add(self.giant_icicle_up, layer = 3)
+            self.all_sprites.add(self.giant_icicle_up2, layer = 3)
+            self.all_sprites.add(self.ice_floor4, layer = 1)
+            self.all_sprites.add(self.ice_wall3, layer = 1)
+            self.all_sprites.add(self.water, layer = 1)
+            self.all_sprites.add(self.water2, layer = 0)
+            self.all_sprites.add(self.press_trap, layer = 3)
+            self.all_sprites.add(self.fan_up2, layer = 1)
+            self.all_sprites.add(self.ice_floor5, layer = 1)
+            self.all_sprites.add(self.small_block, layer = 1)
+            self.all_sprites.add(self.icicle_down7, layer = 3)
+            self.all_sprites.add(self.ground, layer = 1)
+            self.all_sprites.add(self.dsp, layer = 1)
+            self.all_sprites.add(self.dsd, layer = 3)
+            self.all_sprites.add(self.dsd2, layer = 3)
+            self.all_sprites.add(self.lava4, layer = 1)
+            self.all_sprites.add(self.fg3, layer = 1)
+            self.all_sprites.add(self.wall4, layer = 1)
+            self.all_sprites.add(self.wall5, layer = 1)
+            self.all_sprites.add(self.platform, layer = 1)
+            self.all_sprites.add(self.jumppad, layer = 3)
+            self.all_sprites.add(self.ladder, layer = 1)
+            self.all_sprites.add(self.water3, layer = 0)
+            self.all_sprites.add(self.ice_wall4, layer = 1)
+            self.all_sprites.add(self.platform2, layer = 1)
+            self.all_sprites.add(self.agt_jump_pad3, layer = 1)
+            self.all_sprites.add(self.ice_platform, layer = 1)
+            self.all_sprites.add(self.agt_jump_pad4, layer = 1)
+            self.all_sprites.add(self.ice_platform2, layer = 1)
+            self.all_sprites.add(self.blue_portal, layer = 1)
+            self.all_sprites.add(self.room_wall, layer = 1)
+            self.all_sprites.add(self.room_floor, layer = 1)
+            self.all_sprites.add(self.room_ceiling, layer = 1)
+            self.all_sprites.add(self.room_wall2, layer = 1)
+            self.all_sprites.add(self.orange_portal, layer = 1)
+            self.all_sprites.add(self.blue_portal2, layer = 1)
+            self.all_sprites.add(self.room2_wall, layer = 1)
+            self.all_sprites.add(self.room2_floor, layer = 1)
+            self.all_sprites.add(self.room2_ceiling, layer = 1)
+            self.all_sprites.add(self.room2_wall2, layer = 1)
+            self.all_sprites.add(self.orange_portal2, layer = 1)
+            self.all_sprites.add(self.stairs1, layer = 1)
+            self.all_sprites.add(self.stairs2, layer = 1)
+            self.all_sprites.add(self.stairs3, layer = 1)
+            self.all_sprites.add(self.stairs4, layer = 1)
+            self.all_sprites.add(self.white_block, layer = 1)
+            self.all_sprites.add(self.spike_up, layer = 3)
+            self.all_sprites.add(self.blue_portal3, layer = 1)
+            self.all_sprites.add(self.room3_wall, layer = 1)
+            self.all_sprites.add(self.room3_floor, layer = 1)
+            self.all_sprites.add(self.room3_ceiling, layer = 1)
+            self.all_sprites.add(self.room3_wall2, layer = 1)
+            self.all_sprites.add(self.orange_portal3, layer = 1)
+            self.all_sprites.add(self.floor2, layer = 1)
+            self.all_sprites.add(self.column, layer = 1)
+            self.all_sprites.add(self.dsp2, layer = 1)
+            self.all_sprites.add(self.floor3, layer = 1)
+            self.all_sprites.add(self.column2, layer = 1)
+            self.all_sprites.add(self.blue_portal4, layer = 1)
+            self.all_sprites.add(self.room4_wall, layer = 1)
+            self.all_sprites.add(self.room4_floor, layer = 1)
+            self.all_sprites.add(self.room4_ceiling, layer = 1)
+            self.all_sprites.add(self.room4_wall2, layer = 1)
+            self.all_sprites.add(self.orange_portal4, layer = 1)
+            self.all_sprites.add(self.floor4, layer = 1)
+            self.all_sprites.add(self.jumpPad2, layer = 3)
+            self.all_sprites.add(self.final_room_wall, layer = 1)
+            self.all_sprites.add(self.final_room_floor, layer = 1)
+            self.all_sprites.add(self.final_room_ceiling, layer = 1)
+            self.all_sprites.add(self.final_room_wall2, layer = 1)
+            self.all_sprites.add(self.orange_portal5, layer = 1)
+            self.all_sprites.add(self.blue_portal6, layer = 1)
+            self.all_sprites.add(self.press_trap2, layer = 3)
+            self.all_sprites.add(self.small_floor, layer = 1)
+            self.all_sprites.add(self.agt_jump_pad5, layer = 1)
+            self.all_sprites.add(self.spike_down2, layer = 3)
+            self.all_sprites.add(self.spike_down3, layer = 3)
+            self.all_sprites.add(self.spike_down4, layer = 3)
+            self.all_sprites.add(self.spike_up4, layer = 3)
+            self.all_sprites.add(self.agt_jump_pad6, layer = 1)
+            self.all_sprites.add(self.spike_up5, layer = 3)
+            self.all_sprites.add(self.wall6, layer = 1)
+            self.all_sprites.add(self.stairs5, layer = 1)
+            self.all_sprites.add(self.stairs6, layer = 1)
+            self.all_sprites.add(self.orange_portal6, layer = 1)
+            self.all_sprites.add(self.ice_wall5, layer = 1)
+            self.all_sprites.add(self.void, layer = 1)
+            self.all_sprites.add(self.void2, layer = 3)
+            self.all_sprites.add(self.finish_level_trigger, layer = 1)
+
+
+       def update(self, dt):
+            self.player.handle_input(dt)
+            for ds in [self.dsu, self.dsu2, self.dsu3, self.dsd, self.dsd2, self.dsu4, self.dsu5]:
+                   dynamic_spike_movement_based_on_timer(ds, dt)
+              
+            if self.player.gravity_direction == "up":
+                    apply_agt(self.player, dt)
+                    agt_move_and_collide(self.player, self.colliders, dt, self.triggers)
+            else:
+                    apply_gravity(self.player, dt)
+                    move_and_collide(self.player, self.colliders, dt, self.triggers)
+            apply_fan_effect(self.player, self.fan_up,  dt, water_multiplier=0.0)
+            apply_fan_effect(self.player, self.fan_up2,  dt, water_multiplier=0.5)           
+            trigger_fragile_ground(self.player, self.block, [self.fg1, self.fg2, self.fg3])
+            fragile_ground_check(self.player, self.block, [self.fg1, self.fg2, self.fg3], self.colliders, dt)
+            respawn_fragile_ground(self.colliders, self.all_sprites, [self.fg1, self.fg2, self.fg3], dt)
+            checkpoint_activation(self.player, self.checkpoint)
+            apply_press_trap_effect(self.player, self.press_trap, dt)
+            apply_press_trap_effect(self.player, self.press_trap2, dt)
+            update_press_trap(self.press_trap, dt)
+            update_press_trap(self.press_trap2, dt)
+            link_portals(self.blue_portal, self.orange_portal)
+            link_portals(self.blue_portal2, self.orange_portal2)
+            link_portals(self.blue_portal3, self.orange_portal3)
+            link_portals(self.blue_portal4, self.orange_portal4)
+            link_portals(self.blue_portal5, self.orange_portal5)
+            link_portals(self.blue_portal6, self.orange_portal6)
+            for portal in [self.blue_portal, self.orange_portal, self.blue_portal2, self.orange_portal2, self.blue_portal3, self.orange_portal3, self.blue_portal4, self.orange_portal4, self.blue_portal5, self.orange_portal5, self.blue_portal6, self.orange_portal6]:
+                    teleport_player(self.player, portal)
+                    cooldown_timer(portal, dt)
+
+            crouching_adjustment(self.player, self.colliders)
+            squash_adjustment(self.player, self.colliders)
+            buoyant_force(self.player, [self.water, self.water2, self.water3])
+            climb_ladder(self.player, [self.ladder])
+            jump_from_the_top_of_ladder(self.player, [self.ladder])
+
+
+       def draw(self, screen):
+                
+                offset_x, offset_y = follow_player(
+                    self.player,
+                    screen.get_width(),
+                    self.WORLD_WIDTH,
+                    screen.get_height(),
+                    self.WORLD_HEIGHT,
+                )
+                screen.fill((163, 182, 194))
+                for sprite in self.all_sprites:
+                    screen.blit(sprite.image, (sprite.rect.x + offset_x, sprite.rect.y + offset_y))
+
+       def is_finished(self):
+                return self.player.rect.colliderect(self.finish_level_trigger.rect)
