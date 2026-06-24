@@ -17,7 +17,7 @@ class Level2:
         self.ground1 = Ground(0, 750, 300, 500)
         self.lava_pool1 = Lava(300, 900, 150, 500)
         self.island1 = Ground(450, 700, 150, 550)
-        self.tip_cloud1 = TipCloud(450, 450, 225, 100, "\nPress Space/W/Up to Jump")
+        self.tip_cloud1 = TipCloud(450, 450, 225, 75, "\nPress Space/W/Up to Jump")
         self.lava_pool2 = Lava(600, 900, 150, 500)
         self.ground2 = Ground(750, 750, 300, 500)
         self.finish_level_trigger = FinishLevelTrigger(950, 650, 50, 100)

@@ -101,13 +101,6 @@ class Player (pygame.sprite.Sprite):
             else:
                 self.vel.y = self.JUMP_VEL
 
-
-        if keys[K_x]:
-            self.pos = pygame.math.Vector2(self.spawn_point)
-            self.rect.topleft = (round(self.pos.x), round(self.pos.y))
-            self.vel = pygame.math.Vector2(0, 0)
-            self.gravity_direction = "down"
-
         if keys[K_c]:
             self.crouching = True
         if keys[K_v]:
@@ -193,9 +186,9 @@ class Icicle(pygame.sprite.Sprite):
         super().__init__()
         self.angle = angle % 360
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.polygon(self.image, (173, 216, 230), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the icicle
+        pygame.draw.polygon(self.image, (173, 216, 226), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the icicle
         self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the icicle to the specified angle
-        self.image.fill((173, 216, 230, 200), special_flags=pygame.BLEND_RGBA_MULT)  # Semi transparent light blue color for icicle
+        self.image.fill((173, 216, 226), special_flags=pygame.BLEND_RGBA_MULT)  # Semi transparent light blue color for icicle
         self.rect = self.image.get_rect(topleft = (x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'icicle' # Type identifier for icicle object

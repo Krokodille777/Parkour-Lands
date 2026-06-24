@@ -56,10 +56,9 @@ pygame.display.set_caption("Platformer")
 clock = pygame.time.Clock()
 
 def restart_level():
-    global current_level, current_level_index
-    current_level_index = 0
+    global current_level
     current_level = LEVELS[current_level_index]()
-LEVELS = [Level510, Level59, Level58, Level57, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36,  Level37, Level38, Level39, Level40, Level41, Level42,(Level43),(Level44), (Level45), (Level46),(Level47),(Level48), (Level49), (Level410), Level51, Level52,(Level53),(Level54),(Level55),(Level56) ]
+LEVELS = [Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level21, Level22, Level23, Level24, Level25, Level26, Level27, Level28, Level29, Level30, Level31,Level32, Level33, Level34, Level35, Level36,  Level37, Level38, Level39, Level40, Level41, Level42,(Level43),(Level44), (Level45), (Level46),(Level47),(Level48), (Level49), (Level410), Level51, Level52,(Level53),(Level54),(Level55),(Level56), Level57, Level58, Level59, Level510]
 current_level_index = 0
 current_level = LEVELS[current_level_index]()
 
@@ -71,7 +70,7 @@ while running:
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
-        if event.type == KEYDOWN and event.key == K_r:
+        if event.type == KEYDOWN and event.key in (K_r, K_x):
             restart_level()
         
     current_level.update(dt)

@@ -228,20 +228,6 @@ def squash_adjustment(player, colliders):
     # Enough room — allow unsquashing
     player.squashed = False
 
-def x_pressed(player, box, colliders):
-    keys = pygame.key.get_pressed()
-    if keys[K_x]:
-        player.pos = pygame.math.Vector2(60, 250)
-        player.rect.topleft = player.pos
-        player.vel = pygame.math.Vector2(0, 0)
-        box.pos = pygame.math.Vector2(350, 155)
-        box.rect.topleft = box.pos
-        box.vel = pygame.math.Vector2(0, 0)
-        player.on_ground = False
-        player.ground = None
-        box.on_ground = False
-        box.ground = None
-
 #Gravity should affect only if you fall off the ladder, not while climbing. So we apply gravity in the main loop as usual, but if the player is on a ladder and pressing up/down, we override the vertical velocity and skip gravity for that frame.
 def climb_ladder(player, ladder_group):
     on_ladder = False

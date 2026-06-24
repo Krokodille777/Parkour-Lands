@@ -3,6 +3,7 @@ START_PORTAL_COLOR = (15, 61, 135)
 END_PORTAL_COLOR = (235, 142, 2)
 PORTAL_TYPES = {"start_portal", "end_portal"}
 PORTAL_COOLDOWN = 1.0
+PORTAL_EXIT_SIDES = {"top", "bottom", "left", "right"}
 
 
 def _is_portal(portal):
@@ -30,6 +31,49 @@ def link_portals(portal1, portal2):
     portal2.linked_portal = portal1
 
 
+def _get_portal_exit_topleft(entity, portal):
+    exit_side = getattr(portal, "exit_side", None)
+
+    if exit_side == "top":
+        return (
+            portal.rect.centerx - entity.rect.width / 2,
+            portal.rect.top - entity.rect.height,
+        )
+    if exit_side == "bottom":
+        return (
+            portal.rect.centerx - entity.rect.width / 2,
+            portal.rect.bottom,
+        )
+    if exit_side == "left":
+        return (
+            portal.rect.left - entity.rect.width,
+            portal.rect.centery - entity.rect.height / 2,
+        )
+    if exit_side == "right":
+        return (
+            portal.rect.right,
+            portal.rect.centery - entity.rect.height / 2,
+        )
+
+    return (
+        portal.rect.centerx - entity.rect.width / 2,
+        portal.rect.centery - entity.rect.height / 2,
+    )
+
+
+def set_portal_exit_side(portal, exit_side):
+    if exit_side not in PORTAL_EXIT_SIDES:
+        raise ValueError("Unknown portal exit side")
+    portal.exit_side = exit_side
+
+
+def _move_entity_to_portal_exit(entity, portal):
+    exit_x, exit_y = _get_portal_exit_topleft(entity, portal)
+    entity.pos.x = exit_x
+    entity.pos.y = exit_y
+    entity.rect.topleft = (round(entity.pos.x), round(entity.pos.y))
+
+
 def teleport_player(player, portal):
     linked_portal = getattr(portal, "linked_portal", None)
     if linked_portal is None:
@@ -50,9 +94,7 @@ def teleport_player(player, portal):
     if portal.cooldown > 0 or linked_portal.cooldown > 0:
         return False
 
-    player.pos.x = linked_portal.rect.centerx - player.rect.width / 2
-    player.pos.y = linked_portal.rect.centery - player.rect.height / 2
-    player.rect.topleft = (round(player.pos.x), round(player.pos.y))
+    _move_entity_to_portal_exit(player, linked_portal)
     player.vel.x = 0
     player.vel.y = 0
     player.on_ground = False
@@ -86,9 +128,7 @@ def teleport_pushable_block(block, portal):
     if portal.cooldown > 0 or linked_portal.cooldown > 0:
         return False
 
-    block.pos.x = linked_portal.rect.centerx - block.rect.width / 2
-    block.pos.y = linked_portal.rect.centery - block.rect.height / 2
-    block.rect.topleft = (round(block.pos.x), round(block.pos.y))
+    _move_entity_to_portal_exit(block, linked_portal)
     block.vel.x = 0
     block.vel.y = 0
     block.on_ground = False
