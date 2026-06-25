@@ -22,7 +22,7 @@ class Level25:
         self.ice2 = Ice(200, 475, 300, 50)
         self.spike_down = Spike(337.5, 435, 25, 40, 0)
         self.island1 = Ground(50, 500, 150, 50)
-        self.wall1 = Ground(0, 0, 50,700)
+        self.wall1 = Ground(0, 0, 50,750)
         self.ladder2 = Ladder(130, 275, 50, 150)
         self.ground = Ground(180, 275, 300, 50)
         self.ceilinng = Ground(200, 100, 250, 85)

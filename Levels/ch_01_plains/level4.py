@@ -15,7 +15,7 @@ class Level4:
         self.ground1 = Ground(0, 750, 300, 500)
         self.lava_pool1 = Lava(300, 850, 150, 500)
         self.island1 = Ground(450, 750, 100, 500)
-        self.tip_cloud1 = TipCloud(450, 600, 200, 100, "Use Jump Pads to \n jump higher!")
+        self.tip_cloud1 = TipCloud(450, 600, 200, 80, "Use Jump Pads to \n jump higher!")
         self.bridge = Bridge(550, 750, 100, 20)
         self.island2 = Ground(650, 750, 100, 500)
 

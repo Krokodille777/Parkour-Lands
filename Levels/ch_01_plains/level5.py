@@ -29,7 +29,7 @@ class Level5:
         self.platform3 = Ground(650, 425, 75, 75)
         self.platform4 = Ground(800, 400, 125, 75)
 
-        self.tip_cloud = TipCloud(250, 300, 225, 50, "Press V to squash yourself \n and fit through narrow spaces. \n And then press V again to \n return to normal size!")
+        self.tip_cloud = TipCloud(650, 625, 250, 65, "Press V to squash yourself \n and fit through narrow spaces.")
 
         self.finish_flag = FinishLevelTrigger(862.5, 300, 50, 100)
 

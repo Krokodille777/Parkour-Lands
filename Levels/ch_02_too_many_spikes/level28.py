@@ -13,15 +13,15 @@ class Level28:
         self.bg_color = (119, 164, 237)
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.player = Player(60, 250, 50, 50)
-        self.ground = Ground(0, 750, 150, 500)
+        self.ground = Ground(0, 400, 150, 1250)
 
         self.lava_pool = Lava(150, 1050, 775, 500)
 
-        self.elevator_left = ElevatorUpDown(175, 800, 100, 25, 175)
-        self.elevator_mid = ElevatorUpDown(425, 800, 100, 25, 120)
-        self.elevator_right = ElevatorUpDown(675, 800, 100, 25, 200)
+        self.elevator_left = ElevatorUpDown(175, 635, 100, 25, 175)
+        self.elevator_mid = ElevatorUpDown(425, 825, 100, 25, 120)
+        self.elevator_right = ElevatorUpDown(675, 750, 100, 25, 200)
 
-        self.ground2 = Ground(925, 750, 100, 500)
+        self.ground2 = Ground(925, 750, 100, 850)
         
         
         self.finish_level_trigger = FinishLevelTrigger(950, 650, 50, 100)

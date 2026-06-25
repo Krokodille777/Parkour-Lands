@@ -18,7 +18,7 @@ class Level26:
         self.elevator_up_down = ElevatorUpDown(275, 120, 80, 25, 75)
         self.wall2 = Ground(360, 0, 50, 300)
         self.ground2 = Ground(175, 250, 225, 50)
-        self.wall3 = Ground(0, 200, 50, 500)
+        self.wall3 = Ground(0, 0, 50, 1500)
         self.ground3 = Ground(50, 520, 150, 300)
         self.spike_down = Spike(50, 470, 35, 50, 0)
         self.wall4 = Ground(200, 470, 50, 350)
@@ -31,7 +31,7 @@ class Level26:
         self.ground4 = Ground(610, 140, 125, 700)
         self.wall6 = Ground(735, 0, 50, 350)
         self.finish_level_trigger = FinishLevelTrigger(685, 40, 50, 100)
-        self.tip_cloud = TipCloud(750, 150, 220, 200, "This game provides \n two types of elevators. \n One moves up and down. \n The other moves left and right. \n Try to use them to your advantage!")
+        self.tip_cloud = TipCloud(570, 150, 335, 35, "Use the elevators to reach distant spots")
 
         self.triggers = pygame.sprite.Group()
         self.triggers.add(self.finish_level_trigger, self.spike_down, self.spike_down2, self.elevator_left_right, self.elevator_up_down, self.jumpPad, self.lava_pool)

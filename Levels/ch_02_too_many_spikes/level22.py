@@ -15,7 +15,7 @@ class Level22:
         self.player = Player(40, 650, 50, 50)
         self.ground = Ground(0, 750, 800, 500)
         self.spike_down = Spike(125, 710, 35, 40, 0)
-        self.jump_pad = JumpPad(625, 740, 50, 25, -2500)
+        self.jump_pad = JumpPad(635, 740, 50, 25, -2500)
         self.bridge = Bridge(0, 625, 500, 20)
         self.block3 = Ground(475, 645, 50, 35)
         self.jump_pad2 = JumpPad(55, 600, 50, 25, -1700)
@@ -24,9 +24,9 @@ class Level22:
         self.block2 = Ground(110, 210, 500, 320)
         self.platform = Ground(605, 210, 200, 50)
 
-        self.spike_up1 = Spike(605, 260, 35, 50, 180)
-        self.spike_up2 = Spike(640, 260, 35, 50, 180)
-        self.spike_up3 = Spike(675, 260, 35, 50, 180)
+        self.spike_up1 = Spike(610, 260, 30, 50, 180)
+        self.spike_up2 = Spike(640, 260, 40, 70, 180)
+        self.spike_up3 = Spike(680, 260, 30, 50, 180)
         self.wall2 = Ground(710, 260, 75, 500)
         self.finish_level_trigger = FinishLevelTrigger(700, 115, 50, 100)
 

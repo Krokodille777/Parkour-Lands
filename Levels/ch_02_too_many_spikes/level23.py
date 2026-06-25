@@ -14,7 +14,7 @@ class Level23:
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.player = Player(60, 700, 50, 50)
         self.ground = Ground(0, 750, 750, 500)
-        self.lava_pool = Lava(740, 750, 500, 500)
+        self.lava_pool = Lava(740, 750, 760, 500)
         self.ladder1 = Ladder(500, 550, 50, 200)
         self.platform_left1 = Ground(350, 550, 150, 35)
         self.spike_up1 = Spike(350, 585, 35, 50, 180)
@@ -26,7 +26,7 @@ class Level23:
         self.platform_right2 = Ground(800, 350, 100, 35)
         self.platform_mid = Ground(400, 350, 250, 35)
         self.finish_level_trigger = FinishLevelTrigger(840, 250, 50, 100)
-        self.tip_cloud = TipCloud(740, 550, 200, 100, "Use the ladders \n to climb up higher")
+        self.tip_cloud = TipCloud(740, 550, 175, 85, "Use the ladders \n to climb up higher")
 
         self.triggers = pygame.sprite.Group()
         self.triggers.add(self.finish_level_trigger, self.spike_up1, self.spike_up2, self.ladder1, self.ladder_left, self.ladder_right)

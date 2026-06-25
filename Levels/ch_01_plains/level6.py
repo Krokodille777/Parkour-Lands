@@ -14,7 +14,7 @@ class Level6:
         self.player = Player(60, 250, 50, 50)
         self.ground1 = Ground(0, 750, 1000, 500)
         self.island1 = Ground(150, 100, 700, 615)
-        self.tip_cloud1 = TipCloud(450, 500, 300, 150, "Press C to crouch! \n To return to normal size, press C again!. \n While in tight place, you can't \n jump or turn back to normal size!")
+        self.tip_cloud1 = TipCloud(375, 500, 165, 35, "Press C to crouch!")
 
         self.finish_level_trigger = FinishLevelTrigger(950, 650, 50, 100)
 

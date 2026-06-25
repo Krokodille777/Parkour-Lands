@@ -12,14 +12,14 @@ class Level24:
         self.WORLD_HEIGHT = 1500
         self.bg_color = (119, 164, 237)
         self.all_sprites = pygame.sprite.LayeredUpdates()
-        self.player = Player(60, 80, 50, 50)
+        self.player = Player(60, 400, 50, 50)
         self.ground = Ground(0, 750, 300, 500)
         self.lava_pool = Lava(300, 950, 500, 300)
         self.ladder = Ladder(370, 550, 50, 200)
         self.island1 = Ground (250, 550, 100, 50)
         self.wall1 = Ground(250, 450, 40, 100)
         self.checkpoint1 = Checkpoint(300, 500, 50, 50)
-        self.tip_cloud = TipCloud(500, 150, 200, 100, "If you are unsure how to \n complete the following parts. \n Try to use Checkpoints to your advantage!")
+        self.tip_cloud = TipCloud(500, 150, 335, 35, "Use Checkpoints in stressful situations!")
         self.island2 = Ground(430, 550, 100, 50)
         self.jumpPad = JumpPad(480, 525, 50, 25, -1300)
         self.platform1 = Ground(650, 250, 50, 50)
@@ -36,7 +36,7 @@ class Level24:
         self.spike_down3 = Spike(1085, 750, 45, 50, 0)
         self.spike_down4 = Spike(1130, 750, 45, 50, 0)
         self.platform3 = Ground(1130, 550, 100, 50)
-        self.wall2 = Ground(1175, 600, 50, 200)    
+        self.wall2 = Ground(1175, 600, 55, 700)    
         self.finish_level_trigger = FinishLevelTrigger(1200, 450, 50, 100)
 
 

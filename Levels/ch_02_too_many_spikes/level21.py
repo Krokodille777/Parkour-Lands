@@ -14,7 +14,7 @@ class Level21:
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.player = Player(60, 250, 50, 50)
         self.ground = Ground(0, 750, 1000, 500)
-        self.tip_cloud = TipCloud(300, 450, 200, 100, "Avoid the spikes!")
+        self.tip_cloud = TipCloud(500, 550, 175, 35, "Avoid the spikes!")
         self.finish_level_trigger = FinishLevelTrigger(900, 650, 50, 100)
 
         spike1 = Spike(300, 700, 35, 50, 0)
