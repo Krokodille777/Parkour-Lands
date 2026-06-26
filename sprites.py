@@ -625,6 +625,14 @@ class TipCloud(pygame.sprite.Sprite):
               self.image.blit(text_surface, (10, y_offset))
               y_offset +=24
 
+
+
+ACCELERATION_SPEED = 400
+DECELERATION_SPEED = 600
+
+#Sprites for chapter 6 and 7: 
+
+#sky objects
 class Void(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
@@ -633,18 +641,263 @@ class Void(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'void' # Type identifier for void objects
-ACCELERATION_SPEED = 400
-DECELERATION_SPEED = 600
+class NetherSky(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((30, 0, 0))  # Dark red color for nether sky
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'nether_sky' # Type identifier for nether sky objects
+
+#ground objects
+class SoulGround(Ground):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((128, 128, 128))  # Ash color for soul ground
+        self.type = 'soul_ground' # Type identifier for soul ground objects
+class CaveStone(Ground):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((105, 105, 105))  # Dim gray color for cave stone
+        self.type = 'cave_stone' # Type identifier for cave stone objects
+class NetherWall(Ground):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((139, 0, 0))  # Dark red color for nether wall
+        self.type = 'nether_wall' # Type identifier for nether wall objects
+class DarkFloor(Ground):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((47, 79, 79))  # Dark slate gray color for dark floor
+        self.type = 'dark_floor' # Type identifier for dark floor objects
+
+#Liquids
+#Blood is a unique liquid that slows the player down.
+class Blood(Water):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((138, 7, 7))  # Dark red color for blood
+        self.type = 'blood' # Type identifier for blood objects
+        self.slow_factor = 0.5  # Player's speed is reduced to 50% when in blood
+class Acid(Water):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((0, 255, 0))  # Bright green color for acid
+        self.type = 'acid' # Type identifier for acid objects
+
+#Hazards
+#Eising Lava rises and falls in a wavelike motion. Like dynamic spikes or press traps.
 
 
+class EmberCrystal(Spike):
+    def __init__(self, x, y, width, height, angle):
+        super().__init__(x, y, width, height, angle)
+        self.image.fill((255, 140, 0))  # Dark orange color for ember crystal
+        self.type = 'ember_crystal' # Type identifier for ember crystal objects
 
-#Sprites for chapter 6 and 7: 
-# SoulGround (Hell version of ground), 
-# Two new liquids: Blood and Acid.
-# New lava type: Rising Lava
-#New Spike types: Ember Crystals
-# New Bg object: Void (same physics as air, just has black color)
-#All  other sprites are the same as in chapter 5, but with different color schemes, to fit the hell theme of chapter 6 and the laboratory theme of chapter 7.
+class Dripstone(Spike):
+    def __init__(self, x, y, width, height, angle):
+        super().__init__(x, y, width, height, angle)
+        self.image.fill((169, 169, 169))  # Dark gray color for dripstone
+        self.type = 'dripstone' # Type identifier for dripstone objects
 
+
+### ========== NEW MECHANICS ========== ###
+class DynamicLava(Lava):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((255, 69, 0))  # Orange red color for dynamic lava
+        self.type = 'dynamic_lava' # Type identifier for dynamic lava objects
+        self.original_y = y  # Store the original y position for oscillation
+        self.range = 50  # Oscillation range in pixels
+        self.amplitude = self.range  # Oscillation amplitude in pixels
+        self.frequency = 0.5  # Oscillation frequency in Hz
+        self.phase = 0.0  # Phase offset for oscillation
+
+
+#New Traps
+#Mace is hanging from the ceiling  and rotatesin a certain segment of a circle. It has a certain speed and requires timing.
+class MaceTrap (pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle, speed):
+        super().__init__()
+        self.angle = angle % 360
+        self.speed = speed
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (105, 105, 105), (width // 2, height // 2), min(width, height) // 2)  # Draw a circle for the mace
+        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the mace to the specified angle
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'mace_trap' # Type identifier for mace trap objects
+
+#A huge rock is a large circular rock that rolls down with acceleration and can crush the player, boxes and can even be used to break fragile surafaces.
+class HugeRock(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((169, 169, 169))  # Dark gray color for huge rock
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'huge_rock' # Type identifier for huge rock objects
+        self.vel = pygame.math.Vector2(0, 0)
+        self.acceleration = 200  # Acceleration in px/s²
+
+#Arrow Launcher shoots triangle arrows at a certain angle and speed. The player must dodge as good as they can to avoid getting hit.
+class ArrowLauncher(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle, launch_speed):
+        super().__init__()
+        self.angle = angle % 360
+        self.launch_speed = launch_speed
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(self.image, (160, 82, 45), (0, 0, width, height))  # Draw a rectangle for the launcher
+        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the launcher to the specified angle
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'arrow_launcher' # Type identifier for arrow launcher objects
+class Arrow(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle, speed):
+        super().__init__()
+        self.angle = angle % 360
+        self.speed = speed
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (255, 0, 0), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the arrow
+        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the arrow to the specified angle
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'arrow' # Type identifier for arrow objects
+
+
+#New Gameplay Mechanics
+#A special type of ground which looks weathered enough to be broken by the player or other objects like box, arrow or huge rock.
+class FragileSurface(Ground):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((169, 169, 169))  # Dark gray color for fragile surface
+        self.type = 'fragile_surface' # Type identifier for fragile surface objects
+        self.break_timer = 0  
+        self.break_delay = 0.5
+        self.respawn_timer = 0
+        self.breaking = False
+        self.broken = False
+class Glass(FragileSurface):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((135, 206, 250))  # Light sky blue color for glass
+        self.type = 'glass' # Type identifier for glass objects
+
+#The Nether's alternative to fans. They erupt sulfur gas which pushes the player up. The should only be placed on the top of surfaces.
+class SulfurGeiser(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, force):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.image.fill((255, 255, 0, 128))  # Semi-transparent yellow color for sulfur geiser
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'sulfur_geiser' # Type identifier for sulfur geiser objects
+        self.force = force
+
+#The dynamic version of the ladder. It is hanging from the ceiling and stands still until player interacts with it. It starts to move back and forth like a pendulum. Player can climb and jump off it like a normal ladder.
+class Vein(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((139, 0, 0))  # Dark red color for vein
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'vein' # Type identifier for vein objects
+        self.original_x = x
+        self.original_y = y
+        self.amplitude = 50  # Oscillation amplitude in pixels
+        self.frequency = 0.5  # Oscillation frequency in Hz
+        self.phase = 0.0  # Phase offset for oscillation
+
+#This type of lava rises uncontrollably and the player must escape it. It will be used in the final level of chapter 7 as the final exam.
+class RisingLava(Lava):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((255, 69, 0))  # Orange red color for rising lava
+        self.type = 'rising_lava' # Type identifier for rising lava objects
+        self.rise_speed = 50  # Speed at which the lava rises in pixels per second
+
+
+#Decoration: Fire, portals, elevators, dead trees, fog
+
+class Fire(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.image.fill((255, 69, 0, 128))  # Semi-transparent orange color for fire
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'fire' # Type identifier for fire objects
+
+class Fog(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.image.fill((169, 169, 169, 128))  # Semi-transparent gray color for fog
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'fog' # Type identifier for fog objects
+
+class DeadTree(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.image.fill((139, 69, 19))  # Brown color for dead tree
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'dead_tree' # Type identifier for dead tree objects
+
+class PurplePortal(StartPortal):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((128, 0, 128))  # Purple color for purple portal
+        self.type = 'purple_portal' # Type identifier for purple portal objects
+class GreenPortal(EndPortal):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image.fill((0, 128, 0))  # Green color for green portal
+        self.type = 'green_portal' # Type identifier for green portal objects
+
+class DustyElevatorUpDown(ElevatorUpDown):
+    def __init__(self, x, y, width, height, range):
+        super().__init__(x, y, width, height, range)
+        self.image.fill((169, 169, 169))  # Dusty gray color for dusty elevator up-down
+        self.type = 'dusty_elevator_up_down' # Type identifier for dusty elevator up-down objects
+
+class DustyElevatorLeftRight(ElevatorLeftRight):
+    def __init__(self, x, y, width, height, range):
+        super().__init__(x, y, width, height, range)
+        self.image.fill((169, 169, 169))  # Dusty gray color for dusty elevator left-right
+        self.type = 'dusty_elevator_left_right' # Type identifier for dusty elevator left-right objects
+
+
+#Endgame sprites: The mysterious guy, credits cloud
+
+class MysteriousGuy(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 0, 0))  # Black color for mysterious guy
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'mysterious_guy' # Type identifier for mysterious guy objects
+
+class CreditsCloud(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, text):
+        super().__init__()
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.image.fill((0, 0, 0, 200))  # Semi-transparent black color for credits cloud
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.type = 'credits_cloud' # Type identifier for credits cloud objects
+
+        font = pygame.font.SysFont(None, 24)
+        lines = text.split("\n")
+        y_offset = 10
+        for line in lines:
+            text_surface = font.render(line, True, (0, 0, 0))
+            self.image.blit(text_surface, (10, y_offset))
+            y_offset += 24
 def retrieve_speeds(_type: str):
     return ACCELERATION_SPEED, DECELERATION_SPEED
