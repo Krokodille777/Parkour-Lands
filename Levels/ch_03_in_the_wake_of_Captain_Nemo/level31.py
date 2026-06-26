@@ -16,16 +16,17 @@ class Level31:
         self.ground = Ground(0, 750, 150, 500)
         self.ladder1 = Ladder(150, 750, 50, 300)
         self.water_pool = Water(150, 800, 700, 500)
+        self.bottom = Ground(0,1250, 1000, 50)
         self.ladder2 = Ladder(800, 750, 50, 300)
         self.ground2 = Ground(850, 750, 150, 500)
-        self.tip_cloud = TipCloud(300, 450, 200, 200, "The whole chapter is about water. \n Water, unlike lava, allows you to cross it \n without taking damage. \n However, while in water your movement is much more sluggish and you will be affected by buoyancy. \n Good luck!")
+        self.tip_cloud = TipCloud(300, 450, 350, 35, "Swim safely and without fear of drowning")
         self.finish_level_trigger = FinishLevelTrigger(900, 650, 50, 100)
 
 
         self.triggers = pygame.sprite.Group()
         self.triggers.add(self.finish_level_trigger, self.water_pool, self.ladder1, self.ladder2)
         self.colliders = pygame.sprite.Group()
-        self.colliders.add(self.ground, self.ground2)
+        self.colliders.add(self.ground, self.ground2, self.bottom)
 
         self.all_sprites.add(self.ground, layer = 0)
         self.all_sprites.add(self.tip_cloud, layer = 1)
@@ -35,6 +36,7 @@ class Level31:
         self.all_sprites.add(self.ground2, layer = 0)
         self.all_sprites.add(self.ladder1, layer = 2)
         self.all_sprites.add(self.ladder2, layer = 2)
+        self.all_sprites.add(self.bottom, layer = 2)
         
 
     def update(self, dt):

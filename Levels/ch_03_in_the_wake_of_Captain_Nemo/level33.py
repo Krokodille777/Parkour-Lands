@@ -15,7 +15,7 @@ class Level33:
         self.player = Player(10, 300, 50, 50)
         self.ground = Ground(0, 0, 100, 250)
         self.ground2 = Ground(0, 350, 100, 650)
-        self.floor = Ground(100, 900, 900, 150)
+        self.floor = Ground(0, 900, 1050, 150)
         self.ceiling = Ground(100, 0, 900, 50)
         self.water_pool = Water(0, 10, 1000, 1000)
         

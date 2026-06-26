@@ -31,8 +31,8 @@ class Level45:
         self.floor = Ground(85, 500, 255, 25)
         self.wall2 = Ground(340, 335, 35, 250 )
         self.button2 = Button(305, 400, 35, 75)
-        self.button3 = Button(150, 465, 75, 35)
-        self.button4 = Button(235, 465, 75, 35)
+        self.button3 = Button(120, 465, 75, 35)
+        self.button4 = Button(205, 465, 75, 35)
 
 
         self.box2 = PushableBlock(390, 195, 85, 85)

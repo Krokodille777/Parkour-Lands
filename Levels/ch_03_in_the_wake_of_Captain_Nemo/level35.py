@@ -22,7 +22,7 @@ class Level35:
         self.wall2 = Ground( 200, 160, 50, 540)
         self.floor = Ground(0, 790, 1000, 125)
         self.ceiling1 = Ground(200, 590, 100, 50)
-        self.fan_right = Fan(50, 715, 25, 75, (1, 0), 3500, 750)
+        self.fan_right = Fan(50, 715, 25, 75, (1, 0), 7500, 750)
         self.small_wall = Ground(275, 400, 25, 200)
         self.small_wall2 = Ground(475, 400, 25, 200)
         self.checkpoint= Checkpoint(375, 450, 50, 50)
@@ -32,7 +32,7 @@ class Level35:
         self.spike_down = Spike(600, 765, 25, 25, 0)
         self.spike_up2 = Spike(660, 625, 25, 25, 180)
         self.spike_down2 = Spike(660, 765, 25, 25, 0)
-        self.fan_up = Fan(730, 765, 75,25, (0, 1), 2000, 700)
+        self.fan_up = Fan(730, 765, 75,25, (0, -1), 8000, 1000)
 
         self.wall3= Ground(650, 50, 50, 500)
         self.wall4 = Ground(850, 50, 200, 1000)
@@ -79,7 +79,7 @@ class Level35:
         self.player.handle_input()
         apply_gravity(self.player, dt)
         player_in_water = self.player.rect.colliderect(self.water_pool.rect)
-        water_multiplier = 0.5 if player_in_water else 1.0
+        water_multiplier = 2 if player_in_water else 1.0
         apply_fan_effect(self.player, self.fan_right, dt, water_multiplier=water_multiplier)
         apply_fan_effect(self.player, self.fan_up, dt, water_multiplier=water_multiplier)
         move_and_collide(self.player, self.colliders, dt, self.triggers)

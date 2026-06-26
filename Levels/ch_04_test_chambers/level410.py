@@ -70,7 +70,7 @@ class Level410:
         self.spike_left3 = Spike(865, 230, 25, 25, 90)
         self.button_cfan_right = Button(425, 65, 75, 35)
         self.button_cfan_left = Button(525, 65, 75, 35)
-        self.wall = Bridge(700, 0, 300, 150)
+        self.wall = Bridge(700, -50, 300, 200)
         
         self.cf_left.linked_button = self.button_cfan_left
         self.cf_right.linked_button = self.button_cfan_right

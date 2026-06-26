@@ -17,7 +17,7 @@ class Level32:
         self.water_pool = Water(150, 160, 800, 850)
         self.ground2 = Ground(325, 0, 425, 700)
         self.wall = Ground (950, 0, 50, 1025)
-        self.depth = Ground(150, 1010, 800, 250)
+        self.depth = Ground(0, 1010, 1000, 250)
         self.island = Ground(875, 150, 75, 25)
 
         self.finish_level_trigger = FinishLevelTrigger(900, 50, 50, 100)
