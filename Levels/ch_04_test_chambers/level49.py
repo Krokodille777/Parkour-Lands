@@ -39,7 +39,7 @@ class Level49:
         link_portals(self.blue_portal, self.orange_portal)
         self.rock = Ground(550, 0, 450, 650)
         self.wall2 = Ground(935, 650, 75, 100)
-        self.cfan_left = ControllableFan(860, 655, 75, 90, (-1, 0), 25000, 350)
+        self.cfan_left = ControllableFan(860, 655, 75, 90, (-1, 0), 25000, 650)
 
 
         self.trapdoor.linked_button = self.button2
