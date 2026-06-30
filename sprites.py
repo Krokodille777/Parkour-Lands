@@ -693,13 +693,21 @@ class Acid(Water):
 class EmberCrystal(Spike):
     def __init__(self, x, y, width, height, angle):
         super().__init__(x, y, width, height, angle)
-        self.image.fill((255, 140, 0))  # Dark orange color for ember crystal
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (255, 140, 0), [(0, height), (width // 2, 0), (width, height)])
+        self.image = pygame.transform.rotate(self.image, self.angle)
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
         self.type = 'ember_crystal' # Type identifier for ember crystal objects
 
 class Dripstone(Spike):
     def __init__(self, x, y, width, height, angle):
         super().__init__(x, y, width, height, angle)
-        self.image.fill((169, 169, 169))  # Dark gray color for dripstone
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (169, 169, 169), [(0, height), (width // 2, 0), (width, height)])
+        self.image = pygame.transform.rotate(self.image, self.angle)
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
         self.type = 'dripstone' # Type identifier for dripstone objects
 
 
@@ -718,36 +726,55 @@ class DynamicLava(Lava):
 
 #New Traps
 #Mace is hanging from the ceiling  and rotatesin a certain segment of a circle. It has a certain speed and requires timing.
-class MaceTrap (pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, angle, speed):
+class MaceTrap(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, angle=0, speed=90, arm_length=100, max_angle=60):
         super().__init__()
-        self.angle = angle % 360
-        self.speed = speed
+        self.angle = angle
+        self.angular_velocity = speed
+        self.arm_length = arm_length
+        self.max_angle = abs(max_angle)
+        self.pivot = pygame.math.Vector2(x, y)
+        self.original_x = x
+        self.original_y = y
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (105, 105, 105), (width // 2, height // 2), min(width, height) // 2)  # Draw a circle for the mace
-        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the mace to the specified angle
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect(center=(x, y + arm_length))
         self.mask = pygame.mask.from_surface(self.image)
+        self.pos = pygame.math.Vector2(self.rect.topleft)
         self.type = 'mace_trap' # Type identifier for mace trap objects
 
 #A huge rock is a large circular rock that rolls down with acceleration and can crush the player, boxes and can even be used to break fragile surafaces.
 class HugeRock(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, roll_direction=1):
         super().__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((169, 169, 169))  # Dark gray color for huge rock
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.ellipse(self.image, (120, 120, 120), self.image.get_rect())
+        pygame.draw.ellipse(self.image, (70, 70, 70), self.image.get_rect(), 3)
         self.rect = self.image.get_rect(topleft=(x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'huge_rock' # Type identifier for huge rock objects
+        self.pos = pygame.math.Vector2(self.rect.topleft)
         self.vel = pygame.math.Vector2(0, 0)
+        self.spawn_point = pygame.math.Vector2(x, y)
+        self.roll_direction = 1 if roll_direction >= 0 else -1
         self.acceleration = 200  # Acceleration in px/s²
+        self.gravity = 2500
+        self.max_speed = 400
+        self.max_fall_speed = 1400
+        self.active = True
+        self.delta_x = 0
+        self.delta_y = 0
 
 #Arrow Launcher shoots triangle arrows at a certain angle and speed. The player must dodge as good as they can to avoid getting hit.
 class ArrowLauncher(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, angle, launch_speed):
+    def __init__(self, x, y, width, height, angle, launch_speed, shoot_interval=2.0):
         super().__init__()
         self.angle = angle % 360
         self.launch_speed = launch_speed
+        self.shoot_interval = shoot_interval
+        self.shoot_timer = 0.0
+        self.active = True
+        self.linked_button = None
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         pygame.draw.rect(self.image, (160, 82, 45), (0, 0, width, height))  # Draw a rectangle for the launcher
         self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the launcher to the specified angle
@@ -755,17 +782,39 @@ class ArrowLauncher(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'arrow_launcher' # Type identifier for arrow launcher objects
 class Arrow(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, angle, speed):
+    def __init__(self, x, y, width, height, angle, speed, lifetime=5.0):
         super().__init__()
         self.angle = angle % 360
         self.speed = speed
+        self.lifetime = lifetime
+        self.age = 0.0
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.polygon(self.image, (255, 0, 0), [(0, height), (width // 2, 0), (width, height)])  # Draw a triangle for the arrow
-        self.image = pygame.transform.rotate(self.image, self.angle)  # Rotate the arrow to the specified angle
+        pygame.draw.polygon(self.image, (105, 55, 25), [(0, 0), (width, height // 2), (0, height)])  # Draw a triangle pointing right
+        self.image = pygame.transform.rotate(self.image, -self.angle)  # Rotate the arrow to the specified angle
         self.rect = self.image.get_rect(topleft=(x, y))
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'arrow' # Type identifier for arrow objects
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.vel = pygame.math.Vector2(0, 0)
 
+#Activated by a button, the spike falls down. Player has seconds to dodge it if they don't want to get smashed.
+class SpikeTrap(Spike):
+    def __init__(self, x, y, width, height, angle, fall_speed=0):
+        super().__init__(x, y, width, height, angle)
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (169, 169, 169), [(0, height), (width // 2, 0), (width, height)])
+        self.image = pygame.transform.rotate(self.image, self.angle)
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.type = 'spike_trap' # Type identifier for spike trap objects
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.vel = pygame.math.Vector2(0, fall_speed)
+        self.spawn_point = pygame.math.Vector2(x, y)
+        self.start_y = y
+        self.gravity = 2500
+        self.max_fall_speed = 900
+        self.active = False
+        self.linked_button = None
 
 #New Gameplay Mechanics
 #A special type of ground which looks weathered enough to be broken by the player or other objects like box, arrow or huge rock.
@@ -787,7 +836,7 @@ class Glass(FragileSurface):
 
 #The Nether's alternative to fans. They erupt sulfur gas which pushes the player up. The should only be placed on the top of surfaces.
 class SulfurGeiser(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, force):
+    def __init__(self, x, y, width, height, force, direction=(0, -1), range=250):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.image.fill((255, 255, 0, 128))  # Semi-transparent yellow color for sulfur geiser
@@ -795,21 +844,33 @@ class SulfurGeiser(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.type = 'sulfur_geiser' # Type identifier for sulfur geiser objects
         self.force = force
+        self.direction = direction
+        self.range = range
 
 #The dynamic version of the ladder. It is hanging from the ceiling and stands still until player interacts with it. It starts to move back and forth like a pendulum. Player can climb and jump off it like a normal ladder.
-class Vein(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+class Vine(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, amplitude=50, frequency=0.5):
         super().__init__()
         self.image = pygame.Surface((width, height))
-        self.image.fill((139, 0, 0))  # Dark red color for vein
+        self.image.fill((89, 47, 25))  # Brown color for vine
         self.rect = self.image.get_rect(topleft=(x, y))
         self.mask = pygame.mask.from_surface(self.image)
-        self.type = 'vein' # Type identifier for vein objects
+        self.type = 'vine' # Type identifier for vine objects
         self.original_x = x
         self.original_y = y
-        self.amplitude = 50  # Oscillation amplitude in pixels
-        self.frequency = 0.5  # Oscillation frequency in Hz
+        self.amplitude = amplitude  # Oscillation amplitude in pixels
+        self.frequency = frequency  # Oscillation frequency in Hz
         self.phase = 0.0  # Phase offset for oscillation
+        self.active = False
+        self.delta_x = 0
+        self.delta_y = 0
+
+
+class Vein(Vine):
+    def __init__(self, x, y, width, height, amplitude=50, frequency=0.5):
+        super().__init__(x, y, width, height, amplitude, frequency)
+        self.image.fill((139, 0, 0))  # Dark red color for nether vein
+        self.type = 'vein' # Backward-compatible type identifier
 
 #This type of lava rises uncontrollably and the player must escape it. It will be used in the final level of chapter 7 as the final exam.
 class RisingLava(Lava):

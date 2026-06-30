@@ -144,4 +144,3 @@ def teleport_pushable_block(block, portal):
 def cooldown_timer(portal, dt):
     if portal.cooldown > 0:
         portal.cooldown = max(0.0, portal.cooldown - dt)
-

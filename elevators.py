@@ -1,5 +1,5 @@
 import pygame
-from sprites import ElevatorUpDown, ElevatorLeftRight
+from sprites import ElevatorUpDown, ElevatorLeftRight, DustyElevatorLeftRight, DustyElevatorUpDown
 def updown_elevator_movement(elevator, range,  dt):
     previous_y = elevator.rect.y
     elevator.delta_x = 0

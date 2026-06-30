@@ -48,6 +48,27 @@ def link_button_to_fan(buttons, fans):
         linked_button = getattr(fan, "linked_button", None)
         linked_from_button = any(fan in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
         fan.active = bool((linked_button and linked_button.pressed) or linked_from_button)
+def link_button_to_spike_trap(buttons, spike_traps):
+    for spike_trap in spike_traps:
+        linked_button = getattr(spike_trap, "linked_button", None)
+        linked_from_button = any(spike_trap in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        spike_trap.active = bool((linked_button and linked_button.pressed) or linked_from_button)
+
+
+def link_button_to_active_objects(buttons, objects):
+    for obj in _iter_actors(objects):
+        linked_button = getattr(obj, "linked_button", None)
+        linked_from_button = any(obj in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        obj.active = bool((linked_button and linked_button.pressed) or linked_from_button)
+
+
+def link_button_to_arrow_launcher(buttons, launchers):
+    link_button_to_active_objects(buttons, launchers)
+
+
+def link_button_to_huge_rock(buttons, rocks):
+    link_button_to_active_objects(buttons, rocks)
+
 
 def open_door_trapdoor(doors, traps):
     for door in doors:
@@ -61,3 +82,9 @@ def activate_fan_from_button(buttons, fans):
         linked_button = getattr(fan, "linked_button", None)
         linked_from_button = any(fan in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
         fan.active = bool((linked_button and linked_button.pressed) or linked_from_button)
+
+def activate_spike_trap_from_button(buttons, spike_traps):
+    for spike_trap in spike_traps:
+        linked_button = getattr(spike_trap, "linked_button", None)
+        linked_from_button = any(spike_trap in getattr(button, "linked_objects", []) and button.pressed for button in buttons)
+        spike_trap.active = bool((linked_button and linked_button.pressed) or linked_from_button)

@@ -3,14 +3,46 @@ from pygame.locals import *
 from sprites import Player
 
 GRAVITY = 2500
-HAZARD_TYPES = {"spike", "dynamic_spike", "lava", "press_trap", "icicle"}
-MOVING_PLATFORM_TYPES = {"elevator_up_down", "elevator_left_right"}
+HAZARD_TYPES = {
+    "spike",
+    "dynamic_spike",
+    "lava",
+    "press_trap",
+    "icicle",
+    "acid",
+    "ember_crystal",
+    "dripstone",
+    "dynamic_lava",
+    "rising_lava",
+    "mace_trap",
+    "spike_trap",
+    "arrow",
+}
+MOVING_PLATFORM_TYPES = {
+    "elevator_up_down",
+    "elevator_left_right",
+    "dusty_elevator_up_down",
+    "dusty_elevator_left_right",
+}
 PLATFORM_CONTACT_TOLERANCE = 6
 
 
 def apply_gravity(player, dt: float):
     player.vel.y += GRAVITY * dt
 
+
+def respawn_actor(actor):
+    actor.pos = pygame.math.Vector2(actor.spawn_point)
+    actor.rect.topleft = (round(actor.pos.x), round(actor.pos.y))
+    actor.vel = pygame.math.Vector2(0, 0)
+    actor.on_ground = False
+    actor.ground = None
+    if hasattr(actor, "gravity_direction"):
+        actor.gravity_direction = "down"
+
+
+def _is_active_hazard(sprite):
+    return getattr(sprite, "type", None) in HAZARD_TYPES and getattr(sprite, "active", True)
 
 
 
@@ -97,14 +129,11 @@ def move_and_collide(player, colliders, dt: float, triggers):
 
     # Check spike triggers after horizontal movement
     for t in triggers:
-        if getattr(t, "type", None) not in HAZARD_TYPES:
+        if not _is_active_hazard(t):
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
-        player.pos = pygame.math.Vector2(player.spawn_point)
-        player.rect.topleft = (round(player.pos.x), round(player.pos.y))
-        player.vel = pygame.math.Vector2(0, 0)
-        player.on_ground = False
+        respawn_actor(player)
         return
 
 
@@ -163,14 +192,11 @@ def move_and_collide(player, colliders, dt: float, triggers):
                 player.vel.y = max(player.vel.y, 0)
         player.pos.y = float(player.rect.y)
     for t in triggers:
-        if getattr(t, "type", None) not in HAZARD_TYPES:
+        if not _is_active_hazard(t):
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
-        player.pos = pygame.math.Vector2(player.spawn_point)
-        player.rect.topleft = (round(player.pos.x), round(player.pos.y))
-        player.vel = pygame.math.Vector2(0, 0)
-        player.on_ground = False
+        respawn_actor(player)
         return
     
 
@@ -331,15 +357,11 @@ def agt_move_and_collide(player, colliders, dt: float, triggers):
         player.pos.x = float(player.rect.x)
 
     for t in triggers:
-        if getattr(t, "type", None) not in HAZARD_TYPES:
+        if not _is_active_hazard(t):
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
-        player.pos = pygame.math.Vector2(player.spawn_point)
-        player.rect.topleft = (round(player.pos.x), round(player.pos.y))
-        player.vel = pygame.math.Vector2(0, 0)
-        player.on_ground = False
-        player.gravity_direction = "down"
+        respawn_actor(player)
         return
 
     # --- Vertical pass (reversed for antigravity) ---
@@ -398,15 +420,11 @@ def agt_move_and_collide(player, colliders, dt: float, triggers):
 
         player.pos.y = float(player.rect.y)
     for t in triggers:
-        if getattr(t, "type", None) not in HAZARD_TYPES:
+        if not _is_active_hazard(t):
             continue
         if not pygame.sprite.collide_mask(player, t):
             continue
-        player.pos = pygame.math.Vector2(player.spawn_point)
-        player.rect.topleft = (round(player.pos.x), round(player.pos.y))
-        player.vel = pygame.math.Vector2(0, 0)
-        player.on_ground = False
-        player.gravity_direction = "down"
+        respawn_actor(player)
         return
     
 def frozen_adjustment(player, colliders):
